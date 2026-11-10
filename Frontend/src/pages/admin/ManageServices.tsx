@@ -14,7 +14,7 @@ import {
   Save,
 } from 'lucide-react';
 import axiosClient from '../../api/axiosClient';
-import type { IGame, IService, ICustomOption, ServiceType } from '../../types';
+import type { IGame, IService, ICustomOption } from '../../types';
 
 export const ManageServices: React.FC = () => {
   const [services, setServices] = useState<IService[]>([]);
@@ -33,15 +33,6 @@ export const ManageServices: React.FC = () => {
   const [description, setDescription] = useState('');
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [serviceType, setServiceType] = useState<ServiceType>('RANK_TIER');
-  const [unitPrice, setUnitPrice] = useState<number>(35000);
-  const [unitLabel, setUnitLabel] = useState<string>('sao');
-  const [minUnit, setMinUnit] = useState<number>(1);
-  const [maxUnit, setMaxUnit] = useState<number>(100);
-  const [fixedPrice, setFixedPrice] = useState<number>(150000);
-  const [multiplierExpress, setMultiplierExpress] = useState<number>(1.25);
-  const [multiplierPickRole, setMultiplierPickRole] = useState<number>(1.15);
-  const [multiplierDuo, setMultiplierDuo] = useState<number>(1.5);
   const [isActive, setIsActive] = useState(true);
 
   // Custom Options ("Tùy chọn mở rộng") Modal State
@@ -92,15 +83,6 @@ export const ManageServices: React.FC = () => {
     setDescription('');
     setThumbnailUrl('');
     setThumbnailFile(null);
-    setServiceType('RANK_TIER');
-    setUnitPrice(35000);
-    setUnitLabel('sao');
-    setMinUnit(1);
-    setMaxUnit(100);
-    setFixedPrice(150000);
-    setMultiplierExpress(1.25);
-    setMultiplierPickRole(1.15);
-    setMultiplierDuo(1.5);
     setIsActive(true);
     if (games.length > 0) setGameId(games[0]._id);
     setModalOpen(true);
@@ -113,15 +95,6 @@ export const ManageServices: React.FC = () => {
     setDescription(svc.description || '');
     setThumbnailUrl(svc.thumbnail);
     setThumbnailFile(null);
-    setServiceType(svc.serviceType || 'RANK_TIER');
-    setUnitPrice(svc.priceConfig?.unitPrice ?? 35000);
-    setUnitLabel(svc.priceConfig?.unitLabel || 'sao');
-    setMinUnit(svc.priceConfig?.minUnit ?? 1);
-    setMaxUnit(svc.priceConfig?.maxUnit ?? 100);
-    setFixedPrice(svc.priceConfig?.fixedPrice ?? 150000);
-    setMultiplierExpress(svc.multipliers?.express || 1.25);
-    setMultiplierPickRole(svc.multipliers?.pickRole || 1.15);
-    setMultiplierDuo(svc.multipliers?.duo || 1.5);
     setIsActive(svc.isActive);
     setModalOpen(true);
   };
@@ -237,25 +210,6 @@ export const ManageServices: React.FC = () => {
       formData.append('name', name.trim());
       formData.append('gameId', gameId);
       formData.append('description', description.trim());
-      formData.append('serviceType', serviceType);
-      formData.append(
-        'priceConfig',
-        JSON.stringify({
-          unitPrice: Number(unitPrice) || 0,
-          unitLabel: unitLabel.trim() || 'sao',
-          minUnit: Number(minUnit) || 1,
-          maxUnit: Number(maxUnit) || 100,
-          fixedPrice: Number(fixedPrice) || 0,
-        })
-      );
-      formData.append(
-        'multipliers',
-        JSON.stringify({
-          express: Number(multiplierExpress),
-          pickRole: Number(multiplierPickRole),
-          duo: Number(multiplierDuo),
-        })
-      );
       formData.append('isActive', String(isActive));
 
       if (thumbnailFile) {
@@ -366,44 +320,12 @@ export const ManageServices: React.FC = () => {
                       <td className="py-3 px-4 font-bold text-white text-sm">{svc.name}</td>
                       <td className="py-3 px-4 text-cyan-400 font-semibold">{gameTitle}</td>
                       <td className="py-3 px-4">
-                        {(!svc.serviceType || svc.serviceType === 'RANK_TIER') && (
-                          <div className="space-y-0.5">
-                            <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                              Bậc Rank
-                            </span>
-                            <p className="text-[11px] text-slate-400">Tích lũy Rank Tiers</p>
-                          </div>
-                        )}
-                        {svc.serviceType === 'PER_UNIT' && (
-                          <div className="space-y-0.5">
-                            <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                              Theo Sao / Điểm
-                            </span>
-                            <p className="text-[11px] text-emerald-300 font-mono font-bold">
-                              {(svc.priceConfig?.unitPrice || 0).toLocaleString('vi-VN')} đ / {svc.priceConfig?.unitLabel || 'sao'}
-                            </p>
-                          </div>
-                        )}
-                        {svc.serviceType === 'MATCH_COUNT' && (
-                          <div className="space-y-0.5">
-                            <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                              Theo Số Trận
-                            </span>
-                            <p className="text-[11px] text-amber-300 font-mono font-bold">
-                              {(svc.priceConfig?.unitPrice || 0).toLocaleString('vi-VN')} đ / {svc.priceConfig?.unitLabel || 'trận'}
-                            </p>
-                          </div>
-                        )}
-                        {svc.serviceType === 'FIXED_PACKAGE' && (
-                          <div className="space-y-0.5">
-                            <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                              Gói Cố Định
-                            </span>
-                            <p className="text-[11px] text-purple-300 font-mono font-bold">
-                              {(svc.priceConfig?.fixedPrice || 0).toLocaleString('vi-VN')} đ (Trọn gói)
-                            </p>
-                          </div>
-                        )}
+                        <div className="space-y-0.5">
+                          <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                            Bậc Rank
+                          </span>
+                          <p className="text-[11px] text-slate-400">Tích lũy Rank Tiers</p>
+                        </div>
                       </td>
                       <td className="py-3 px-4">
                         <button
@@ -760,176 +682,12 @@ export const ManageServices: React.FC = () => {
                 </div>
               </div>
 
-              {/* Service Type Selection */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  Hình Thức Tính Giá & Dịch Vụ <span className="text-rose-400">*</span>
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {[
-                    { type: 'RANK_TIER', label: 'Bậc Rank', desc: 'Theo Tiers' },
-                    { type: 'PER_UNIT', label: 'Sao / Điểm', desc: 'Theo đơn vị' },
-                    { type: 'MATCH_COUNT', label: 'Số Trận', desc: 'Theo trận/giờ' },
-                    { type: 'FIXED_PACKAGE', label: 'Gói Cố Định', desc: 'Trọn gói' },
-                  ].map((item) => (
-                    <button
-                      key={item.type}
-                      type="button"
-                      onClick={() => setServiceType(item.type as ServiceType)}
-                      className={`p-2.5 rounded-xl border text-center transition-colors ${
-                        serviceType === item.type
-                          ? 'bg-cyan-500/20 border-cyan-400 text-white font-bold'
-                          : 'bg-gaming-dark border-gaming-border text-slate-400 hover:text-slate-200'
-                      }`}
-                    >
-                      <p className="text-xs font-bold">{item.label}</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">{item.desc}</p>
-                    </button>
-                  ))}
-                </div>
+              <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300 space-y-1">
+                <p className="font-bold">Mô hình tính giá: Tích lũy theo Rank Tiers</p>
+                <p className="text-[11px] text-slate-400">
+                  Giá cày được cộng dồn tự động từ chi phí của các bậc rank trong game. Cấu hình chi phí chi tiết tại mục Rank Tiers.
+                </p>
               </div>
-
-              {/* Conditional Pricing Fields based on Service Type */}
-              {serviceType === 'RANK_TIER' && (
-                <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300 space-y-1">
-                  <p className="font-bold">Mô hình tính giá: Tích lũy theo Rank Tiers</p>
-                  <p className="text-[11px] text-slate-400">
-                    Giá cày được cộng dồn từ chi phí của các bậc rank trong game. Cấu hình chi phí chi tiết tại mục Rank Tiers.
-                  </p>
-                </div>
-              )}
-
-              {serviceType === 'PER_UNIT' && (
-                <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 space-y-3">
-                  <p className="text-xs font-bold text-emerald-400">Cấu hình giá theo đơn vị (Sao, Điểm LP, ELO...)</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                        Đơn giá mỗi đơn vị (VNĐ) <span className="text-rose-400">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        min={0}
-                        step={1000}
-                        value={unitPrice}
-                        onChange={(e) => setUnitPrice(Number(e.target.value))}
-                        className="w-full bg-gaming-dark border border-gaming-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
-                        placeholder="VD: 35000"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                        Tên đơn vị <span className="text-rose-400">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={unitLabel}
-                        onChange={(e) => setUnitLabel(e.target.value)}
-                        className="w-full bg-gaming-dark border border-gaming-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
-                        placeholder="VD: sao, điểm LP, MMR"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                        Đơn vị tối thiểu
-                      </label>
-                      <input
-                        type="number"
-                        value={minUnit}
-                        onChange={(e) => setMinUnit(Number(e.target.value))}
-                        className="w-full bg-gaming-dark border border-gaming-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                        Đơn vị tối đa
-                      </label>
-                      <input
-                        type="number"
-                        value={maxUnit}
-                        onChange={(e) => setMaxUnit(Number(e.target.value))}
-                        className="w-full bg-gaming-dark border border-gaming-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {serviceType === 'MATCH_COUNT' && (
-                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-3">
-                  <p className="text-xs font-bold text-amber-400">Cấu hình giá theo số trận / giờ</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                        Đơn giá mỗi trận/giờ (VNĐ) <span className="text-rose-400">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        min={0}
-                        step={1000}
-                        value={unitPrice}
-                        onChange={(e) => setUnitPrice(Number(e.target.value))}
-                        className="w-full bg-gaming-dark border border-gaming-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
-                        placeholder="VD: 40000"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                        Tên đơn vị <span className="text-rose-400">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={unitLabel}
-                        onChange={(e) => setUnitLabel(e.target.value)}
-                        className="w-full bg-gaming-dark border border-gaming-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
-                        placeholder="VD: trận, giờ"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                        Số lượng tối thiểu
-                      </label>
-                      <input
-                        type="number"
-                        value={minUnit}
-                        onChange={(e) => setMinUnit(Number(e.target.value))}
-                        className="w-full bg-gaming-dark border border-gaming-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                        Số lượng tối đa
-                      </label>
-                      <input
-                        type="number"
-                        value={maxUnit}
-                        onChange={(e) => setMaxUnit(Number(e.target.value))}
-                        className="w-full bg-gaming-dark border border-gaming-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {serviceType === 'FIXED_PACKAGE' && (
-                <div className="p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/20 space-y-3">
-                  <p className="text-xs font-bold text-purple-400">Cấu hình giá trọn gói cố định</p>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                      Giá trọn gói (VNĐ) <span className="text-rose-400">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      min={0}
-                      step={10000}
-                      value={fixedPrice}
-                      onChange={(e) => setFixedPrice(Number(e.target.value))}
-                      className="w-full bg-gaming-dark border border-gaming-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 font-mono"
-                      placeholder="VD: 150000"
-                    />
-                  </div>
-                </div>
-              )}
 
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1">

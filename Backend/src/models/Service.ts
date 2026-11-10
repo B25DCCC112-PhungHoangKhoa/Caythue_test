@@ -1,18 +1,5 @@
 import mongoose, { Schema, type InferSchemaType, type Types } from 'mongoose';
 
-export type ServiceType = 'RANK_TIER' | 'PER_UNIT' | 'MATCH_COUNT' | 'FIXED_PACKAGE';
-
-export const priceConfigSchema = new Schema(
-  {
-    unitPrice: { type: Number, default: 0 },
-    unitLabel: { type: String, default: 'sao' },
-    minUnit: { type: Number, default: 1 },
-    maxUnit: { type: Number, default: 100 },
-    fixedPrice: { type: Number, default: 0 }
-  },
-  { _id: false }
-);
-
 export const customOptionSchema = new Schema(
   {
     key: {
@@ -91,21 +78,6 @@ export const serviceSchema = new Schema(
       type: String,
       required: [true, 'Ảnh đại diện service là bắt buộc']
     },
-    serviceType: {
-      type: String,
-      enum: ['RANK_TIER', 'PER_UNIT', 'MATCH_COUNT', 'FIXED_PACKAGE'],
-      default: 'RANK_TIER',
-      required: true
-    },
-    priceConfig: {
-      type: priceConfigSchema,
-      default: () => ({ unitPrice: 0, unitLabel: 'sao', minUnit: 1, maxUnit: 100, fixedPrice: 0 })
-    },
-    multipliers: {
-      express: { type: Number, default: 1.25 },
-      pickRole: { type: Number, default: 1.15 },
-      duo: { type: Number, default: 1.5 }
-    },
     customOptions: {
       type: [customOptionSchema],
       default: DEFAULT_CUSTOM_OPTIONS
@@ -118,15 +90,9 @@ export const serviceSchema = new Schema(
   { timestamps: true }
 );
 
-export type PriceConfigSchemaType = InferSchemaType<typeof priceConfigSchema>;
-export type IPriceConfig = PriceConfigSchemaType;
-
-export type CustomOptionSchemaType = InferSchemaType<typeof customOptionSchema>;
-export type ICustomOption = CustomOptionSchemaType & { _id?: Types.ObjectId | string };
-
 export type ServiceSchemaType = InferSchemaType<typeof serviceSchema>;
 export type IService = ServiceSchemaType & { _id: Types.ObjectId };
-export type IServiceMultipliers = NonNullable<ServiceSchemaType['multipliers']>;
+export type ICustomOption = InferSchemaType<typeof customOptionSchema> & { _id: Types.ObjectId };
 
 export const Service = mongoose.model('Service', serviceSchema);
 export default Service;

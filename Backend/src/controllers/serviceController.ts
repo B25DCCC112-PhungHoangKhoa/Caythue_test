@@ -159,9 +159,6 @@ export class ServiceController {
         gameId,
         name,
         description,
-        serviceType,
-        priceConfig,
-        multipliers,
         customOptions,
         isActive
       } = req.body;
@@ -196,45 +193,16 @@ export class ServiceController {
         return;
       }
 
-      const parsedMultipliers =
-        typeof multipliers === 'string' ? JSON.parse(multipliers) : multipliers;
-
       const parsedCustomOptions =
         typeof customOptions === 'string'
           ? JSON.parse(customOptions)
           : customOptions || DEFAULT_CUSTOM_OPTIONS;
-
-      let parsedPriceConfig = {
-        unitPrice: 0,
-        unitLabel: 'sao',
-        minUnit: 1,
-        maxUnit: 100,
-        fixedPrice: 0
-      };
-
-      if (priceConfig) {
-        const rawConfig = typeof priceConfig === 'string' ? JSON.parse(priceConfig) : priceConfig;
-        parsedPriceConfig = {
-          unitPrice: Number(rawConfig.unitPrice) || 0,
-          unitLabel: rawConfig.unitLabel ? String(rawConfig.unitLabel).trim() : 'sao',
-          minUnit: Number(rawConfig.minUnit) || 1,
-          maxUnit: Number(rawConfig.maxUnit) || 100,
-          fixedPrice: Number(rawConfig.fixedPrice) || 0
-        };
-      }
 
       const service = await Service.create({
         gameId,
         name: name.trim(),
         description: description ? description.trim() : '',
         thumbnail,
-        serviceType: serviceType || 'RANK_TIER',
-        priceConfig: parsedPriceConfig,
-        multipliers: {
-          express: parsedMultipliers?.express ?? 1.25,
-          pickRole: parsedMultipliers?.pickRole ?? 1.15,
-          duo: parsedMultipliers?.duo ?? 1.5
-        },
         customOptions: parsedCustomOptions,
         isActive: parseBoolean(isActive, true)
       });
@@ -259,9 +227,6 @@ export class ServiceController {
       const {
         name,
         description,
-        serviceType,
-        priceConfig,
-        multipliers,
         customOptions,
         isActive
       } = req.body;
@@ -276,29 +241,6 @@ export class ServiceController {
         return;
       }
 
-      if (name) {
-        service.name = name.trim();
-      }
-
-      if (description !== undefined) {
-        service.description = description.trim();
-      }
-
-      if (serviceType) {
-        service.serviceType = serviceType;
-      }
-
-      if (priceConfig) {
-        const rawConfig = typeof priceConfig === 'string' ? JSON.parse(priceConfig) : priceConfig;
-        service.priceConfig = {
-          unitPrice: rawConfig.unitPrice !== undefined ? Number(rawConfig.unitPrice) : (service.priceConfig?.unitPrice || 0),
-          unitLabel: rawConfig.unitLabel !== undefined ? String(rawConfig.unitLabel).trim() : (service.priceConfig?.unitLabel || 'sao'),
-          minUnit: rawConfig.minUnit !== undefined ? Number(rawConfig.minUnit) : (service.priceConfig?.minUnit || 1),
-          maxUnit: rawConfig.maxUnit !== undefined ? Number(rawConfig.maxUnit) : (service.priceConfig?.maxUnit || 100),
-          fixedPrice: rawConfig.fixedPrice !== undefined ? Number(rawConfig.fixedPrice) : (service.priceConfig?.fixedPrice || 0)
-        } as any;
-      }
-
       if (req.file) {
         thumbnail = await CloudinaryService.uploadToCloudinary(req.file.buffer, 'services');
         service.thumbnail = thumbnail;
@@ -306,20 +248,12 @@ export class ServiceController {
         service.thumbnail = thumbnail;
       }
 
-      if (multipliers) {
-        const parsedMultipliers =
-          typeof multipliers === 'string' ? JSON.parse(multipliers) : multipliers;
+      if (name) {
+        service.name = name.trim();
+      }
 
-        const currentMultipliers = service.multipliers || {
-          express: 1.25,
-          pickRole: 1.15,
-          duo: 1.5
-        };
-        service.multipliers = {
-          express: parsedMultipliers.express ?? currentMultipliers.express,
-          pickRole: parsedMultipliers.pickRole ?? currentMultipliers.pickRole,
-          duo: parsedMultipliers.duo ?? currentMultipliers.duo
-        };
+      if (description !== undefined) {
+        service.description = description.trim();
       }
 
       if (customOptions) {

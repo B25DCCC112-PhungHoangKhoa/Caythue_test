@@ -1,37 +1,26 @@
-// =====================================================================
-// INFERRED TYPES FROM MONGOOSE SCHEMAS (Single Source of Truth)
-// =====================================================================
-export type { IUser, UserRole, UserSchemaType } from '../models/User.js';
-export type { IGame, GameSchemaType } from '../models/Game.js';
-export type { IRankTier, RankTierSchemaType } from '../models/RankTier.js';
+import type { Types } from 'mongoose';
+import type { IGame } from '../models/Game.js';
+import type { IRankTier } from '../models/RankTier.js';
+import type { IService, ICustomOption } from '../models/Service.js';
+import type { IOrder, IAccountInfo } from '../models/Order.js';
+import type { IUser, UserRole } from '../models/User.js';
+import type { IReview } from '../models/Review.js';
+
 export type {
+  IGame,
+  IRankTier,
   IService,
-  IServiceMultipliers,
-  ServiceSchemaType,
   ICustomOption,
-  CustomOptionSchemaType,
-  ServiceType,
-  IPriceConfig,
-  PriceConfigSchemaType
-} from '../models/Service.js';
-export type {
   IOrder,
-  IServiceConfig,
-  IOrderOptions,
   IAccountInfo,
-  IRefundInfo,
-  PaymentMethod,
-  PaymentStatus,
-  OrderStatus,
-  OrderSchemaType
-} from '../models/Order.js';
-export type { IReview, ReviewSchemaType } from '../models/Review.js';
+  IUser,
+  IReview,
+  UserRole
+};
 
-export type RefundStatus = 'none' | 'pending' | 'refunded';
-
-// =====================================================================
-// API REQUEST BODY & PAYLOAD INTERFACES (DTOs)
-// =====================================================================
+export type OrderStatus = 'pending' | 'in_progress' | 'completed' | 'canceled';
+export type PaymentStatus = 'pending' | 'paid' | 'refunded';
+export type PaymentMethod = 'VIETQR' | 'MOCK_CARD';
 
 export interface RegisterRequestBody {
   name: string;
@@ -43,14 +32,6 @@ export interface RegisterRequestBody {
 export interface LoginRequestBody {
   email: string;
   password: string;
-}
-
-export interface AuthUserResponse {
-  id: string;
-  name: string;
-  email: string;
-  role: 'client' | 'admin';
-  phoneNumber?: string | null;
 }
 
 export interface CreateGameRequestBody {
@@ -87,19 +68,6 @@ export interface CreateServiceRequestBody {
   name: string;
   description?: string;
   thumbnail?: string;
-  serviceType?: 'RANK_TIER' | 'PER_UNIT' | 'MATCH_COUNT' | 'FIXED_PACKAGE';
-  priceConfig?: {
-    unitPrice?: number;
-    unitLabel?: string;
-    minUnit?: number;
-    maxUnit?: number;
-    fixedPrice?: number;
-  } | string;
-  multipliers?: {
-    express?: number;
-    pickRole?: number;
-    duo?: number;
-  } | string;
   customOptions?: Array<{
     key: string;
     name: string;
@@ -116,19 +84,6 @@ export interface UpdateServiceRequestBody {
   name?: string;
   description?: string;
   thumbnail?: string;
-  serviceType?: 'RANK_TIER' | 'PER_UNIT' | 'MATCH_COUNT' | 'FIXED_PACKAGE';
-  priceConfig?: {
-    unitPrice?: number;
-    unitLabel?: string;
-    minUnit?: number;
-    maxUnit?: number;
-    fixedPrice?: number;
-  } | string;
-  multipliers?: {
-    express?: number;
-    pickRole?: number;
-    duo?: number;
-  } | string;
   customOptions?: Array<{
     key: string;
     name: string;
@@ -150,16 +105,8 @@ export interface SelectedCustomOption {
 
 export interface CalculatePriceRequestBody {
   serviceId: string;
-  startRankTierId?: string;
-  targetRankTierId?: string;
-  currentUnit?: number;
-  targetUnit?: number;
-  quantity?: number;
-  options?: {
-    isExpress?: boolean;
-    pickRole?: boolean;
-    isDuo?: boolean;
-  };
+  startRankTierId: string;
+  targetRankTierId: string;
   customOptions?: SelectedCustomOption[];
 }
 
@@ -167,9 +114,6 @@ export interface CalculatePriceResult {
   basePrice: number;
   multiplier: number;
   totalPrice: number;
-  serviceType?: string;
-  unitsDiff?: number;
-  unitLabel?: string;
   appliedOptions?: Array<{
     key: string;
     name: string;
@@ -180,16 +124,8 @@ export interface CalculatePriceResult {
 
 export interface CreateOrderRequestBody {
   serviceId: string;
-  startRankTierId?: string;
-  targetRankTierId?: string;
-  currentUnit?: number;
-  targetUnit?: number;
-  quantity?: number;
-  options?: {
-    isExpress?: boolean;
-    pickRole?: boolean;
-    isDuo?: boolean;
-  };
+  startRankTierId: string;
+  targetRankTierId: string;
   customOptions?: SelectedCustomOption[];
   accountInfo: {
     inGameAccount: string;

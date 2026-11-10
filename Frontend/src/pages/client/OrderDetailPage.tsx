@@ -182,17 +182,7 @@ export const OrderDetailPage: React.FC = () => {
     ? order.targetRankTierId.name
     : 'Rank Đích';
 
-  const config = order.serviceConfig;
-  let serviceDetailText = `${startTierName} → ${targetTierName}`;
-  if (config) {
-    if (config.serviceType === 'PER_UNIT') {
-      serviceDetailText = `${config.currentUnit ?? 0} → ${config.targetUnit ?? 0} ${config.unitLabel || 'sao'}`;
-    } else if (config.serviceType === 'MATCH_COUNT') {
-      serviceDetailText = `${config.quantity ?? 1} ${config.unitLabel || 'trận'}`;
-    } else if (config.serviceType === 'FIXED_PACKAGE') {
-      serviceDetailText = 'Gói dịch vụ trọn gói';
-    }
-  }
+  const serviceDetailText = `${startTierName} → ${targetTierName}`;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -266,13 +256,9 @@ export const OrderDetailPage: React.FC = () => {
               <div className="flex justify-between">
                 <span className="text-slate-500">Tùy chọn:</span>
                 <span className="text-slate-700 font-medium">
-                  {[
-                    order.options.isExpress && 'Cày siêu tốc',
-                    order.options.pickRole && 'Chỉ định vị trí',
-                    order.options.isDuo && 'Duo với booster',
-                  ]
-                    .filter(Boolean)
-                    .join(', ') || 'Tiêu chuẩn'}
+                  {order.customOptions && order.customOptions.length > 0
+                    ? order.customOptions.map((opt) => opt.name).join(', ')
+                    : 'Tiêu chuẩn'}
                 </span>
               </div>
               <div className="flex justify-between pt-2 border-t border-slate-100">

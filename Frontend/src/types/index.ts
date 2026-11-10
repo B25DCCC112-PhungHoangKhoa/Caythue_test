@@ -6,24 +6,6 @@ export type PaymentMethod = 'VIETQR' | 'MOCK_CARD';
 export type PaymentStatus = 'pending' | 'paid' | 'refunded';
 export type OrderStatus = 'pending' | 'in_progress' | 'completed' | 'canceled';
 export type RefundStatus = 'none' | 'pending' | 'refunded';
-export type ServiceType = 'RANK_TIER' | 'PER_UNIT' | 'MATCH_COUNT' | 'FIXED_PACKAGE';
-
-export interface IPriceConfig {
-  unitPrice?: number;
-  unitLabel?: string;
-  minUnit?: number;
-  maxUnit?: number;
-  fixedPrice?: number;
-}
-
-export interface IServiceConfig {
-  serviceType: ServiceType;
-  currentUnit?: number | null;
-  targetUnit?: number | null;
-  unitLabel?: string;
-  quantity?: number | null;
-  packageName?: string;
-}
 
 // ==========================================
 // 6 CORE ENTITY INTERFACES
@@ -31,6 +13,7 @@ export interface IServiceConfig {
 
 export interface IUser {
   _id: string;
+  id?: string;
   name: string;
   email: string;
   role: UserRole;
@@ -61,12 +44,6 @@ export interface IRankTier {
   updatedAt?: string;
 }
 
-export interface IServiceMultipliers {
-  express: number;
-  pickRole: number;
-  duo: number;
-}
-
 export interface ICustomOption {
   _id?: string;
   key: string;
@@ -84,19 +61,10 @@ export interface IService {
   name: string;
   description?: string;
   thumbnail: string;
-  serviceType?: ServiceType;
-  priceConfig?: IPriceConfig;
-  multipliers: IServiceMultipliers;
   customOptions?: ICustomOption[];
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
-}
-
-export interface IOrderOptions {
-  isExpress: boolean;
-  pickRole: boolean;
-  isDuo: boolean;
 }
 
 export interface IOrderCustomOption {
@@ -138,10 +106,8 @@ export interface IOrder {
   bankInfo?: IBankInfo;
   userId: string | IUser;
   serviceId: string | IService;
-  serviceConfig?: IServiceConfig;
-  startRankTierId?: string | IRankTier | null;
-  targetRankTierId?: string | IRankTier | null;
-  options: IOrderOptions;
+  startRankTierId: string | IRankTier;
+  targetRankTierId: string | IRankTier;
   customOptions?: IOrderCustomOption[];
   accountInfo: IAccountInfo;
   basePrice: number;
@@ -180,19 +146,9 @@ export interface ApiResponse<T = unknown> {
 
 export interface AuthResponse {
   success: boolean;
+  message: string;
   token: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: UserRole;
-    phoneNumber?: string | null;
-  };
-}
-
-export interface LoginPayload {
-  email: string;
-  password: string;
+  user: IUser;
 }
 
 export interface RegisterPayload {
@@ -202,14 +158,15 @@ export interface RegisterPayload {
   phoneNumber?: string;
 }
 
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
 export interface CalculatePricePayload {
   serviceId: string;
-  startRankTierId?: string;
-  targetRankTierId?: string;
-  currentUnit?: number;
-  targetUnit?: number;
-  quantity?: number;
-  options?: Partial<IOrderOptions>;
+  startRankTierId: string;
+  targetRankTierId: string;
   customOptions?: Array<{ key: string; inputValue?: string }>;
 }
 
@@ -218,21 +175,14 @@ export interface CalculatePriceResponse {
   basePrice: number;
   multiplier: number;
   totalPrice: number;
-  serviceType?: ServiceType;
-  unitsDiff?: number;
-  unitLabel?: string;
   appliedOptions?: IOrderCustomOption[];
   message?: string;
 }
 
 export interface CreateOrderPayload {
   serviceId: string;
-  startRankTierId?: string;
-  targetRankTierId?: string;
-  currentUnit?: number;
-  targetUnit?: number;
-  quantity?: number;
-  options?: Partial<IOrderOptions>;
+  startRankTierId: string;
+  targetRankTierId: string;
   customOptions?: Array<{ key: string; inputValue?: string }>;
   accountInfo: {
     inGameAccount: string;
@@ -292,4 +242,3 @@ export interface OrdersListResponse {
   totalPages?: number;
   orders: IOrder[];
 }
-

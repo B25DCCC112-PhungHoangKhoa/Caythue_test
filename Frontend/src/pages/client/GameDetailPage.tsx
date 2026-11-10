@@ -62,9 +62,6 @@ export const GameDetailPage: React.FC = () => {
     selectedService,
     startRankTier,
     targetRankTier,
-    currentUnit,
-    targetUnit,
-    quantity,
     customOptionsSelection,
     pricePreview,
     isCalculating,
@@ -73,9 +70,6 @@ export const GameDetailPage: React.FC = () => {
     setSelectedService,
     setStartRankTier,
     setTargetRankTier,
-    setCurrentUnit,
-    setTargetUnit,
-    setQuantity,
     toggleCustomOption,
     setCustomOptionInput,
     resetBooking,
@@ -235,28 +229,13 @@ export const GameDetailPage: React.FC = () => {
       return;
     }
 
-    const type = selectedService.serviceType || 'RANK_TIER';
-
-    if (type === 'RANK_TIER') {
-      if (!startRankTier || !targetRankTier) {
-        alert('Vui lòng chọn đầy đủ các bậc rank!');
-        return;
-      }
-      if (targetRankTier.index <= startRankTier.index) {
-        alert('Bậc rank mục tiêu phải cao hơn bậc rank hiện tại!');
-        return;
-      }
-    } else if (type === 'PER_UNIT') {
-      const unitLabel = selectedService.priceConfig?.unitLabel || 'sao';
-      if (targetUnit <= currentUnit) {
-        alert(`Số ${unitLabel} mong muốn phải lớn hơn số ${unitLabel} hiện tại!`);
-        return;
-      }
-    } else if (type === 'MATCH_COUNT') {
-      if (quantity < 1) {
-        alert('Số lượng cần cày phải từ 1 trở lên!');
-        return;
-      }
+    if (!startRankTier || !targetRankTier) {
+      alert('Vui lòng chọn đầy đủ các bậc rank!');
+      return;
+    }
+    if (targetRankTier.index <= startRankTier.index) {
+      alert('Bậc rank mục tiêu phải cao hơn bậc rank hiện tại!');
+      return;
     }
 
     if (!inGameAccount.trim() || !inGamePassword.trim()) {
@@ -283,11 +262,8 @@ export const GameDetailPage: React.FC = () => {
 
       const res = await axiosClient.post<CreateOrderResponse>('/orders', {
         serviceId: selectedService._id,
-        startRankTierId: type === 'RANK_TIER' ? startRankTier?._id : undefined,
-        targetRankTierId: type === 'RANK_TIER' ? targetRankTier?._id : undefined,
-        currentUnit: type === 'PER_UNIT' ? currentUnit : undefined,
-        targetUnit: type === 'PER_UNIT' ? targetUnit : undefined,
-        quantity: type === 'MATCH_COUNT' ? quantity : undefined,
+        startRankTierId: startRankTier._id,
+        targetRankTierId: targetRankTier._id,
         customOptions: selectedCustomOptionsList,
         accountInfo: {
           inGameAccount: inGameAccount.trim(),
@@ -507,121 +483,51 @@ export const GameDetailPage: React.FC = () => {
           </div>
 
           <form onSubmit={handleHireNow} className="space-y-5">
-            {/* Polymorphic Input Section based on serviceType */}
-            {(!selectedService?.serviceType || selectedService.serviceType === 'RANK_TIER') && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Bậc rank hiện tại <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    value={startRankTier?._id || ''}
-                    onChange={(e) => {
-                      const found = rankTiers.find((t) => t._id === e.target.value);
-                      setStartRankTier(found || null);
-                    }}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
-                  >
-                    {rankTiers.map((tier) => (
-                      <option key={tier._id} value={tier._id}>
-                        [{tier.index}] {tier.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Bậc rank mong muốn <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    value={targetRankTier?._id || ''}
-                    onChange={(e) => {
-                      const found = rankTiers.find((t) => t._id === e.target.value);
-                      setTargetRankTier(found || null);
-                    }}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
-                  >
-                    {rankTiers.map((tier) => {
-                      const isDisabled = startRankTier ? tier.index <= startRankTier.index : false;
-                      return (
-                        <option key={tier._id} value={tier._id} disabled={isDisabled}>
-                          [{tier.index}] {tier.name} {isDisabled ? '(Thấp hơn hiện tại)' : ''}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {selectedService?.serviceType === 'PER_UNIT' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Số {selectedService.priceConfig?.unitLabel || 'sao'} hiện tại <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min={selectedService.priceConfig?.minUnit ?? 0}
-                    max={selectedService.priceConfig?.maxUnit ?? 1000}
-                    value={currentUnit}
-                    onChange={(e) => setCurrentUnit(Number(e.target.value))}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Số {selectedService.priceConfig?.unitLabel || 'sao'} mong muốn <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min={(selectedService.priceConfig?.minUnit ?? 0) + 1}
-                    max={selectedService.priceConfig?.maxUnit ?? 1000}
-                    value={targetUnit}
-                    onChange={(e) => setTargetUnit(Number(e.target.value))}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
-                  />
-                </div>
-              </div>
-            )}
-
-            {selectedService?.serviceType === 'MATCH_COUNT' && (
+            {/* Rank Tier Selection */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Số {selectedService.priceConfig?.unitLabel || 'trận'} cần cày <span className="text-rose-500">*</span>
+                  Bậc rank hiện tại <span className="text-rose-500">*</span>
                 </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="number"
-                    min={selectedService.priceConfig?.minUnit ?? 1}
-                    max={selectedService.priceConfig?.maxUnit ?? 50}
-                    value={quantity}
-                    onChange={(e) => setQuantity(Number(e.target.value))}
-                    className="w-36 bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-orange-500 font-bold"
-                  />
-                  <span className="text-xs text-slate-500 font-medium">
-                    {selectedService.priceConfig?.unitLabel || 'trận'} (Đơn giá:{' '}
-                    {(selectedService.priceConfig?.unitPrice || 0).toLocaleString('vi-VN')}đ/
-                    {selectedService.priceConfig?.unitLabel || 'trận'})
-                  </span>
-                </div>
+                <select
+                  value={startRankTier?._id || ''}
+                  onChange={(e) => {
+                    const found = rankTiers.find((t) => t._id === e.target.value);
+                    setStartRankTier(found || null);
+                  }}
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
+                >
+                  {rankTiers.map((tier) => (
+                    <option key={tier._id} value={tier._id}>
+                      [{tier.index}] {tier.name}
+                    </option>
+                  ))}
+                </select>
               </div>
-            )}
 
-            {selectedService?.serviceType === 'FIXED_PACKAGE' && (
-              <div className="p-4 rounded-xl bg-orange-50/60 border border-orange-200 space-y-1">
-                <span className="text-xs font-bold text-orange-800">Gói dịch vụ trọn gói</span>
-                <p className="text-xs text-slate-600">
-                  Giá cố định:{' '}
-                  <span className="font-bold text-orange-600 font-mono">
-                    {(selectedService.priceConfig?.fixedPrice || 0).toLocaleString('vi-VN')}đ
-                  </span>
-                  . Hoàn thành toàn bộ yêu cầu cam kết.
-                </p>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Bậc rank mong muốn <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={targetRankTier?._id || ''}
+                  onChange={(e) => {
+                    const found = rankTiers.find((t) => t._id === e.target.value);
+                    setTargetRankTier(found || null);
+                  }}
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-orange-500 font-medium"
+                >
+                  {rankTiers.map((tier) => {
+                    const isDisabled = startRankTier ? tier.index <= startRankTier.index : false;
+                    return (
+                      <option key={tier._id} value={tier._id} disabled={isDisabled}>
+                        [{tier.index}] {tier.name} {isDisabled ? '(Thấp hơn hiện tại)' : ''}
+                      </option>
+                    );
+                  })}
+                </select>
               </div>
-            )}
+            </div>
 
             {calculationError && (
               <p className="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-xl border border-rose-200">

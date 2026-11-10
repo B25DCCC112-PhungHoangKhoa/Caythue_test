@@ -22,34 +22,15 @@ export const orderSchema = new Schema(
       ref: 'Service',
       required: [true, 'Dịch vụ là bắt buộc']
     },
-    serviceConfig: {
-      serviceType: {
-        type: String,
-        enum: ['RANK_TIER', 'PER_UNIT', 'MATCH_COUNT', 'FIXED_PACKAGE'],
-        default: 'RANK_TIER'
-      },
-      currentUnit: { type: Number, default: null },
-      targetUnit: { type: Number, default: null },
-      unitLabel: { type: String, default: '' },
-      quantity: { type: Number, default: null },
-      packageName: { type: String, default: '' }
-    },
     startRankTierId: {
       type: Schema.Types.ObjectId,
       ref: 'RankTier',
-      required: false,
-      default: null
+      required: [true, 'Bậc rank hiện tại là bắt buộc']
     },
     targetRankTierId: {
       type: Schema.Types.ObjectId,
       ref: 'RankTier',
-      required: false,
-      default: null
-    },
-    options: {
-      isExpress: { type: Boolean, default: false },
-      pickRole: { type: Boolean, default: false },
-      isDuo: { type: Boolean, default: false }
+      required: [true, 'Bậc rank mong muốn là bắt buộc']
     },
     customOptions: [
       {
@@ -105,13 +86,7 @@ export const orderSchema = new Schema(
 
 export type OrderSchemaType = InferSchemaType<typeof orderSchema>;
 export type IOrder = OrderSchemaType & { _id: Types.ObjectId };
-export type IServiceConfig = NonNullable<OrderSchemaType['serviceConfig']>;
-export type IOrderOptions = NonNullable<OrderSchemaType['options']>;
 export type IAccountInfo = NonNullable<OrderSchemaType['accountInfo']>;
-export type IRefundInfo = NonNullable<OrderSchemaType['refundInfo']>;
-export type PaymentMethod = NonNullable<OrderSchemaType['paymentMethod']>;
-export type PaymentStatus = NonNullable<OrderSchemaType['paymentStatus']>;
-export type OrderStatus = NonNullable<OrderSchemaType['orderStatus']>;
 
 export const Order = mongoose.model('Order', orderSchema);
 export default Order;

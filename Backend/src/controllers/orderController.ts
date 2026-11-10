@@ -32,17 +32,13 @@ export class OrderController {
         serviceId,
         startRankTierId,
         targetRankTierId,
-        currentUnit,
-        targetUnit,
-        quantity,
-        options,
         customOptions
       } = req.body;
 
-      if (!serviceId) {
+      if (!serviceId || !startRankTierId || !targetRankTierId) {
         res.status(400).json({
           success: false,
-          message: 'serviceId là bắt buộc'
+          message: 'serviceId, startRankTierId và targetRankTierId là bắt buộc'
         });
         return;
       }
@@ -51,10 +47,6 @@ export class OrderController {
         serviceId,
         startRankTierId,
         targetRankTierId,
-        currentUnit,
-        targetUnit,
-        quantity,
-        options,
         customOptions
       });
 
@@ -63,9 +55,6 @@ export class OrderController {
         basePrice: priceResult.basePrice,
         multiplier: priceResult.multiplier,
         totalPrice: priceResult.totalPrice,
-        serviceType: priceResult.serviceType,
-        unitsDiff: priceResult.unitsDiff,
-        unitLabel: priceResult.unitLabel,
         appliedOptions: priceResult.appliedOptions
       });
     } catch (error) {
@@ -94,19 +83,15 @@ export class OrderController {
         serviceId,
         startRankTierId,
         targetRankTierId,
-        currentUnit,
-        targetUnit,
-        quantity,
-        options,
         customOptions,
         accountInfo,
         paymentMethod
       } = req.body;
 
-      if (!serviceId) {
+      if (!serviceId || !startRankTierId || !targetRankTierId) {
         res.status(400).json({
           success: false,
-          message: 'serviceId là bắt buộc'
+          message: 'serviceId, startRankTierId và targetRankTierId là bắt buộc'
         });
         return;
       }
@@ -128,15 +113,8 @@ export class OrderController {
         serviceId,
         startRankTierId,
         targetRankTierId,
-        currentUnit,
-        targetUnit,
-        quantity,
-        options,
         customOptions
       });
-
-      const service = await Service.findById(serviceId);
-      const serviceType = service?.serviceType || 'RANK_TIER';
 
       // Generate unique orderCode
       let orderCode = VietQRService.generateOrderCode();
@@ -162,21 +140,8 @@ export class OrderController {
         transferCode,
         userId: req.user.id,
         serviceId,
-        serviceConfig: {
-          serviceType,
-          currentUnit: currentUnit !== undefined ? Number(currentUnit) : undefined,
-          targetUnit: targetUnit !== undefined ? Number(targetUnit) : undefined,
-          unitLabel: service?.priceConfig?.unitLabel || 'sao',
-          quantity: quantity !== undefined ? Number(quantity) : undefined,
-          packageName: service?.name || ''
-        },
-        startRankTierId: serviceType === 'RANK_TIER' ? startRankTierId : null,
-        targetRankTierId: serviceType === 'RANK_TIER' ? targetRankTierId : null,
-        options: {
-          isExpress: Boolean(options?.isExpress),
-          pickRole: Boolean(options?.pickRole),
-          isDuo: Boolean(options?.isDuo)
-        },
+        startRankTierId,
+        targetRankTierId,
         customOptions: priceResult.appliedOptions || [],
         accountInfo: {
           inGameAccount: accountInfo.inGameAccount.trim(),
@@ -235,7 +200,7 @@ export class OrderController {
       }
 
       const orders = await Order.find({ userId: req.user.id })
-        .populate('serviceId', 'name thumbnail multipliers')
+        .populate('serviceId', 'name thumbnail')
         .populate('startRankTierId', 'name index costToNext')
         .populate('targetRankTierId', 'name index')
         .sort({ createdAt: -1 });
@@ -286,7 +251,7 @@ export class OrderController {
       const { id } = req.params;
       const order = await Order.findById(id)
         .populate('userId', 'name email phoneNumber')
-        .populate('serviceId', 'name thumbnail multipliers')
+        .populate('serviceId', 'name thumbnail')
         .populate('startRankTierId', 'name index costToNext')
         .populate('targetRankTierId', 'name index');
 

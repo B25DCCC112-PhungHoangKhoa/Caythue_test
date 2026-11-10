@@ -24,10 +24,6 @@ export const CheckoutPage: React.FC = () => {
     selectedService,
     startRankTier,
     targetRankTier,
-    currentUnit,
-    targetUnit,
-    quantity,
-    options,
     customOptionsSelection,
     pricePreview,
     resetBooking,
@@ -99,26 +95,19 @@ export const CheckoutPage: React.FC = () => {
     );
   }
 
-  const serviceType = selectedService?.serviceType || 'RANK_TIER';
-  const hasValidConfig =
-    Boolean(selectedGame && selectedService && pricePreview) &&
-    (serviceType === 'RANK_TIER'
-      ? Boolean(startRankTier && targetRankTier)
-      : serviceType === 'PER_UNIT'
-      ? targetUnit > currentUnit
-      : serviceType === 'MATCH_COUNT'
-      ? quantity >= 1
-      : true);
+  const hasValidConfig = Boolean(
+    selectedGame && selectedService && pricePreview && startRankTier && targetRankTier
+  );
 
   // 2. If no booking was selected and no order created, prompt user to pick a game
-  if (!selectedGame || !selectedService || !pricePreview || !hasValidConfig) {
+  if (!selectedGame || !selectedService || !pricePreview || !hasValidConfig || !startRankTier || !targetRankTier) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
         <div className="p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
           <AlertCircle className="w-12 h-12 text-orange-500 mx-auto" />
-          <h2 className="text-xl font-black text-slate-900">Chưa Chọn Cấu Hình Dịch Vụ</h2>
+          <h2 className="text-xl font-black text-slate-900">Chưa Chọn Cấu Hình Cày Rank</h2>
           <p className="text-xs text-slate-500">
-            Vui lòng chọn tựa game và cấu hình gói dịch vụ trước khi tiến hành thanh toán.
+            Vui lòng chọn tựa game và bậc rank mong muốn trước khi tiến hành thanh toán.
           </p>
           <Link
             to="/"
@@ -152,13 +141,9 @@ export const CheckoutPage: React.FC = () => {
         }));
 
       const res = await axiosClient.post<CreateOrderResponse>('/orders', {
-        serviceId: selectedService!._id,
-        startRankTierId: serviceType === 'RANK_TIER' ? startRankTier?._id : undefined,
-        targetRankTierId: serviceType === 'RANK_TIER' ? targetRankTier?._id : undefined,
-        currentUnit: serviceType === 'PER_UNIT' ? currentUnit : undefined,
-        targetUnit: serviceType === 'PER_UNIT' ? targetUnit : undefined,
-        quantity: serviceType === 'MATCH_COUNT' ? quantity : undefined,
-        options,
+        serviceId: selectedService._id,
+        startRankTierId: startRankTier._id,
+        targetRankTierId: targetRankTier._id,
         customOptions: selectedCustomOptionsList,
         accountInfo: {
           inGameAccount: formData.inGameAccount.trim(),
@@ -374,31 +359,16 @@ export const CheckoutPage: React.FC = () => {
             <div className="flex justify-between">
               <span className="text-slate-400">Chi tiết dịch vụ:</span>
               <span className="font-bold text-slate-900 text-right">
-                {serviceType === 'RANK_TIER' && startRankTier && targetRankTier && (
-                  `${startRankTier.name} → ${targetRankTier.name}`
-                )}
-                {serviceType === 'PER_UNIT' && (
-                  `${currentUnit} → ${targetUnit} ${selectedService?.priceConfig?.unitLabel || 'sao'} (+${targetUnit - currentUnit} ${selectedService?.priceConfig?.unitLabel || 'sao'})`
-                )}
-                {serviceType === 'MATCH_COUNT' && (
-                  `${quantity} ${selectedService?.priceConfig?.unitLabel || 'trận'}`
-                )}
-                {serviceType === 'FIXED_PACKAGE' && (
-                  'Gói dịch vụ trọn gói'
-                )}
+                {`${startRankTier.name} → ${targetRankTier.name}`}
               </span>
             </div>
 
             <div className="flex justify-between">
               <span className="text-slate-400">Tùy chọn thêm:</span>
               <span className="text-slate-700 font-semibold text-right">
-                {[
-                  options.isExpress && 'Cày siêu tốc',
-                  options.pickRole && 'Chỉ định vị trí',
-                  options.isDuo && 'Duo với booster',
-                ]
-                  .filter(Boolean)
-                  .join(', ') || 'Không có'}
+                {pricePreview.appliedOptions && pricePreview.appliedOptions.length > 0
+                  ? pricePreview.appliedOptions.map((opt) => opt.name).join(', ')
+                  : 'Không có'}
               </span>
             </div>
 

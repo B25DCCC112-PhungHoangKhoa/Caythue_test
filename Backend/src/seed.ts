@@ -251,13 +251,6 @@ export class DatabaseSeeder {
             name: item.name,
             description: item.description,
             thumbnail: item.thumbnail,
-            serviceType: 'RANK_TIER',
-            priceConfig: { unitPrice: 0, unitLabel: 'bậc', minUnit: 1, maxUnit: 100, fixedPrice: 0 },
-            multipliers: {
-              express: 1.35,
-              pickRole: 1.25,
-              duo: 1.0
-            },
             customOptions: DEFAULT_CUSTOM_OPTIONS,
             isActive: true
           });
@@ -285,13 +278,9 @@ export class DatabaseSeeder {
           transferCode: 'ORDER001',
           userId: client._id,
           serviceId: lqService._id,
-          serviceConfig: {
-            serviceType: 'RANK_TIER',
-            packageName: lqService.name
-          },
           startRankTierId: lqTiersList[2]._id, // Vàng
           targetRankTierId: lqTiersList[4]._id, // Kim Cương
-          options: { isExpress: true, pickRole: false, isDuo: false },
+          customOptions: [{ key: 'express', name: 'Cày siêu tốc (Express)', percentage: 35 }],
           accountInfo: {
             inGameAccount: 'garena_pro99',
             inGamePassword: '******',
@@ -312,13 +301,9 @@ export class DatabaseSeeder {
           transferCode: 'ORDER002',
           userId: client._id,
           serviceId: lmhtService._id,
-          serviceConfig: {
-            serviceType: 'RANK_TIER',
-            packageName: lmhtService.name
-          },
           startRankTierId: lmhtTiersList[4]._id, // Bạch Kim
           targetRankTierId: lmhtTiersList[5]._id, // Lục Bảo
-          options: { isExpress: false, pickRole: true, isDuo: false },
+          customOptions: [{ key: 'pick_hero', name: 'Chỉ định tướng tủ', percentage: 25 }],
           accountInfo: {
             inGameAccount: 'riot_gamer',
             inGamePassword: '******',
@@ -339,13 +324,9 @@ export class DatabaseSeeder {
           transferCode: 'ORDER003',
           userId: client._id,
           serviceId: valService._id,
-          serviceConfig: {
-            serviceType: 'RANK_TIER',
-            packageName: valService.name
-          },
           startRankTierId: valTiersList[3]._id, // Gold
           targetRankTierId: valTiersList[5]._id, // Diamond
-          options: { isExpress: true, pickRole: false, isDuo: false },
+          customOptions: [{ key: 'express', name: 'Cày siêu tốc (Express)', percentage: 35 }],
           accountInfo: {
             inGameAccount: 'val_player_vn',
             inGamePassword: '******',

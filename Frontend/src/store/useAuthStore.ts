@@ -30,7 +30,7 @@ export const useAuthStore = create<AuthState>()(
           set({
             token,
             user: {
-              _id: user.id,
+              _id: user.id || user._id,
               name: user.name,
               email: user.email,
               role: user.role,
@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthState>()(
           set({
             token,
             user: {
-              _id: user.id,
+              _id: user.id || user._id,
               name: user.name,
               email: user.email,
               role: user.role,

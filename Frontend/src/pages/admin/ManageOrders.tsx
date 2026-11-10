@@ -231,21 +231,11 @@ export const ManageOrders: React.FC = () => {
                     ? o.targetRankTierId.name
                     : '---';
 
-                  const config = o.serviceConfig;
-                  let displayPath = `${startName} → ${targetName}`;
-                  if (config) {
-                    if (config.serviceType === 'PER_UNIT') {
-                      displayPath = `${config.currentUnit ?? 0} → ${config.targetUnit ?? 0} ${config.unitLabel || 'sao'}`;
-                    } else if (config.serviceType === 'MATCH_COUNT') {
-                      displayPath = `${config.quantity ?? 1} ${config.unitLabel || 'trận'}`;
-                    } else if (config.serviceType === 'FIXED_PACKAGE') {
-                      displayPath = 'Gói trọn gói';
-                    }
-                  }
+                  const displayPath = `${startName} → ${targetName}`;
 
                   const serviceName = typeof o.serviceId === 'object' && o.serviceId && 'name' in o.serviceId
                     ? o.serviceId.name
-                    : (config?.packageName || '');
+                    : 'Cày Rank';
 
                   const hasRefundInfo = Boolean(o.refundInfo?.accountNumber);
 

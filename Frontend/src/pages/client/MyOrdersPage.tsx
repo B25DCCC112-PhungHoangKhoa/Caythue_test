@@ -178,17 +178,7 @@ export const MyOrdersPage: React.FC = () => {
               ? order.targetRankTierId.name
               : 'Rank Đích';
 
-            const config = order.serviceConfig;
-            let displayPath = `${startName} → ${targetName}`;
-            if (config) {
-              if (config.serviceType === 'PER_UNIT') {
-                displayPath = `${config.currentUnit ?? 0} → ${config.targetUnit ?? 0} ${config.unitLabel || 'sao'}`;
-              } else if (config.serviceType === 'MATCH_COUNT') {
-                displayPath = `${config.quantity ?? 1} ${config.unitLabel || 'trận'}`;
-              } else if (config.serviceType === 'FIXED_PACKAGE') {
-                displayPath = 'Gói trọn gói';
-              }
-            }
+            const displayPath = `${startName} → ${targetName}`;
 
             return (
               <div
