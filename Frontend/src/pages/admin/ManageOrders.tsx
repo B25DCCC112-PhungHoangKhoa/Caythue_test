@@ -1,21 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
   ShoppingBag,
-  Filter,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  DollarSign,
   Upload,
   Loader2,
   X,
   CreditCard,
-  Image as ImageIcon,
-  Check,
   RefreshCw,
 } from 'lucide-react';
 import axiosClient from '../../api/axiosClient';
-import type { IOrder, OrderStatus, PaymentStatus } from '../../types';
+import type { IOrder, OrderStatus } from '../../types';
 
 export const ManageOrders: React.FC = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);

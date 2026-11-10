@@ -549,6 +549,9 @@ export class OrderController {
       }
 
       order.paymentStatus = 'refunded' as PaymentStatus;
+      if (order.orderStatus !== 'canceled') {
+        order.orderStatus = 'canceled';
+      }
       order.refundInfo = {
         ...order.refundInfo,
         refundProof: refundProof || order.refundInfo?.refundProof || null,

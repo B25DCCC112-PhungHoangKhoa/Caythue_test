@@ -4,6 +4,13 @@ import { Service } from '../models/Service.js';
 import { CloudinaryService } from '../config/cloudinary.js';
 import type { CreateGameRequestBody, UpdateGameRequestBody } from '../types/index.js';
 
+const parseBoolean = (val: unknown, defaultVal = true): boolean => {
+  if (val === undefined || val === null) return defaultVal;
+  if (typeof val === 'boolean') return val;
+  if (typeof val === 'string') return val.trim().toLowerCase() === 'true';
+  return Boolean(val);
+};
+
 export class GameController {
   private static generateSlug(str: string): string {
     return str
@@ -111,7 +118,7 @@ export class GameController {
         slug,
         thumbnail,
         description: description ? description.trim() : '',
-        isActive: isActive !== undefined ? Boolean(isActive) : true
+        isActive: parseBoolean(isActive, true)
       });
 
       res.status(201).json({
@@ -165,7 +172,7 @@ export class GameController {
       }
 
       if (isActive !== undefined) {
-        game.isActive = Boolean(isActive);
+        game.isActive = parseBoolean(isActive, game.isActive);
       }
 
       await game.save();

@@ -4,7 +4,6 @@ import {
   Plus,
   Edit2,
   Trash2,
-  Check,
   X,
   Loader2,
   AlertCircle,

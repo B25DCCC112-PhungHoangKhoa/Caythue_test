@@ -12,9 +12,6 @@ import {
   Zap,
   Check,
   Save,
-  HelpCircle,
-  ToggleLeft,
-  ToggleRight,
 } from 'lucide-react';
 import axiosClient from '../../api/axiosClient';
 import type { IGame, IService, ICustomOption, ServiceType } from '../../types';

@@ -217,13 +217,41 @@ export const VietQRPaymentCard: React.FC<VietQRPaymentCardProps> = ({
                 <span className="font-bold text-slate-900 shrink-0">Bước 3:</span>
                 <div>
                   <span>Nhập số tiền cần chuyển là </span>
-                  <strong className="text-orange-600 font-mono font-bold">
-                    {totalPrice.toLocaleString('vi-VN')}đ
-                  </strong>
+                  <span className="inline-flex items-center gap-1">
+                    <strong className="text-orange-600 font-mono font-bold">
+                      {totalPrice.toLocaleString('vi-VN')}đ
+                    </strong>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(String(totalPrice), 'amount')}
+                      className="p-1 rounded hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors"
+                      title="Sao chép số tiền"
+                    >
+                      {copiedAmount ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </span>
                   <span> và nội dung chuyển tiền </span>
-                  <strong className="text-orange-600 font-mono font-bold text-sm bg-orange-50 px-2 py-0.5 rounded border border-orange-200 inline-flex items-center gap-1.5 my-1">
-                    {transferMessage}
-                  </strong>{' '}
+                  <span className="inline-flex items-center gap-1 my-1">
+                    <strong className="text-orange-600 font-mono font-bold text-sm bg-orange-50 px-2 py-0.5 rounded border border-orange-200">
+                      {transferMessage}
+                    </strong>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(transferMessage, 'message')}
+                      className="p-1 rounded hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors"
+                      title="Sao chép nội dung chuyển tiền"
+                    >
+                      {copiedMessage ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </span>{' '}
                   <span className="text-xs text-slate-500 block sm:inline">
                     (NAP + cách + mã thanh toán)
                   </span>

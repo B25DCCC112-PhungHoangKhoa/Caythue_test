@@ -4,6 +4,13 @@ import { Game } from '../models/Game.js';
 import { CloudinaryService } from '../config/cloudinary.js';
 import type { CreateServiceRequestBody, UpdateServiceRequestBody } from '../types/index.js';
 
+const parseBoolean = (val: unknown, defaultVal = true): boolean => {
+  if (val === undefined || val === null) return defaultVal;
+  if (typeof val === 'boolean') return val;
+  if (typeof val === 'string') return val.trim().toLowerCase() === 'true';
+  return Boolean(val);
+};
+
 export class ServiceController {
   public static async getServices(
     req: Request,
@@ -229,7 +236,7 @@ export class ServiceController {
           duo: parsedMultipliers?.duo ?? 1.5
         },
         customOptions: parsedCustomOptions,
-        isActive: isActive !== undefined ? Boolean(isActive) : true
+        isActive: parseBoolean(isActive, true)
       });
 
       res.status(201).json({
@@ -322,7 +329,7 @@ export class ServiceController {
       }
 
       if (isActive !== undefined) {
-        service.isActive = Boolean(isActive);
+        service.isActive = parseBoolean(isActive, service.isActive);
       }
 
       await service.save();

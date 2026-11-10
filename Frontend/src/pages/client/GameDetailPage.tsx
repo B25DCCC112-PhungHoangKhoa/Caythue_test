@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   ChevronRight,
   Loader2,
-  Phone,
   MessageSquare,
   Gift,
   HelpCircle,
@@ -110,9 +109,10 @@ export const GameDetailPage: React.FC = () => {
 
   // Smooth View Transition handlers
   const handleSelectGame = (targetSlug: string) => {
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
     if (!targetSlug) {
-      if (typeof document !== 'undefined' && 'startViewTransition' in document) {
-        (document as any).startViewTransition(() => {
+      if (typeof doc.startViewTransition === 'function') {
+        doc.startViewTransition(() => {
           navigate('/#services-section');
         });
       } else {
@@ -123,8 +123,8 @@ export const GameDetailPage: React.FC = () => {
 
     if (targetSlug === slug) return;
 
-    if (typeof document !== 'undefined' && 'startViewTransition' in document) {
-      (document as any).startViewTransition(() => {
+    if (typeof doc.startViewTransition === 'function') {
+      doc.startViewTransition(() => {
         navigate(`/games/${targetSlug}`);
       });
     } else {
@@ -133,8 +133,9 @@ export const GameDetailPage: React.FC = () => {
   };
 
   const handleSelectService = (svc: IService) => {
-    if (typeof document !== 'undefined' && 'startViewTransition' in document) {
-      (document as any).startViewTransition(() => {
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
+    if (typeof doc.startViewTransition === 'function') {
+      doc.startViewTransition(() => {
         setSelectedService(svc);
       });
     } else {
@@ -185,8 +186,9 @@ export const GameDetailPage: React.FC = () => {
             }
           };
 
-          if (typeof document !== 'undefined' && 'startViewTransition' in document) {
-            (document as any).startViewTransition(updateStates);
+          const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
+          if (typeof doc.startViewTransition === 'function') {
+            doc.startViewTransition(updateStates);
           } else {
             updateStates();
           }
@@ -273,7 +275,7 @@ export const GameDetailPage: React.FC = () => {
     try {
       setSubmittingOrder(true);
       const selectedCustomOptionsList = Object.entries(customOptionsSelection)
-        .filter(([_, val]) => val.selected)
+        .filter(([, val]) => val.selected)
         .map(([k, val]) => ({
           key: k,
           inputValue: val.inputValue,

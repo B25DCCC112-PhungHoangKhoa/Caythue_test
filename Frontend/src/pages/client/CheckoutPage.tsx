@@ -4,7 +4,6 @@ import {
   ShieldCheck,
   Gamepad2,
   Lock,
-  Phone,
   Server,
   FileText,
   CreditCard,
@@ -146,7 +145,7 @@ export const CheckoutPage: React.FC = () => {
     try {
       setSubmitting(true);
       const selectedCustomOptionsList = Object.entries(customOptionsSelection)
-        .filter(([_, val]) => val.selected)
+        .filter(([, val]) => val.selected)
         .map(([k, val]) => ({
           key: k,
           inputValue: val.inputValue,

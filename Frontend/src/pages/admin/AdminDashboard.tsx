@@ -4,7 +4,6 @@ import {
   ShoppingBag,
   Clock,
   CheckCircle2,
-  XCircle,
   TrendingUp,
   DollarSign,
   Gamepad2,
@@ -52,7 +51,6 @@ export const AdminDashboard: React.FC = () => {
   const pendingCount = orders.filter((o) => o.orderStatus === 'pending').length;
   const inProgressCount = orders.filter((o) => o.orderStatus === 'in_progress').length;
   const completedCount = orders.filter((o) => o.orderStatus === 'completed').length;
-  const canceledCount = orders.filter((o) => o.orderStatus === 'canceled').length;
 
   return (
     <div className="space-y-8">

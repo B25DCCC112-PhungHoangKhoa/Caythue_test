@@ -66,8 +66,9 @@ export const HomePage: React.FC = () => {
   // Smooth View Transition handler for game selection
   const handleSelectGame = (gameId: string) => {
     const nextId = selectedGameId === gameId ? '' : gameId;
-    if (typeof document !== 'undefined' && 'startViewTransition' in document) {
-      (document as any).startViewTransition(() => {
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
+    if (typeof doc.startViewTransition === 'function') {
+      doc.startViewTransition(() => {
         setSelectedGameId(nextId);
       });
     } else {
@@ -76,8 +77,9 @@ export const HomePage: React.FC = () => {
   };
 
   const handleNavigateWithTransition = (path: string) => {
-    if (typeof document !== 'undefined' && 'startViewTransition' in document) {
-      (document as any).startViewTransition(() => {
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
+    if (typeof doc.startViewTransition === 'function') {
+      doc.startViewTransition(() => {
         navigate(path);
       });
     } else {

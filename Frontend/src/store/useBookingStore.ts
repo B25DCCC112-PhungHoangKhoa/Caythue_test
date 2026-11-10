@@ -264,7 +264,7 @@ export const useBookingStore = create<BookingState>()(
 
         // Format customOptions array
         const selectedCustomOptionsList = Object.entries(customOptionsSelection)
-          .filter(([_, val]) => val.selected)
+          .filter(([, val]) => val.selected)
           .map(([k, val]) => ({
             key: k,
             inputValue: val.inputValue,
