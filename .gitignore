@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Production builds
+dist/
+*/dist/
+dist-ssr/
+*.tsbuildinfo
+
+# Environment variables & secrets (Không bao giờ push key/mật khẩu lên Git)
+.env
+.env.*
+!.env.example
+*.env
+*.env.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor & OS files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Testing & Local Agent artifacts
+.agents/
+.playwright-mcp/
+coverage/
+.turbo/

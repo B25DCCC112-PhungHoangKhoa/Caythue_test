@@ -1,0 +1,60 @@
+/* Hallmark · shape: kept · genre: modern-minimal · theme: brand · redesign: polish
+ * paper: oklch(98.5% 0.005 60) · accent: oklch(65% 0.22 45) · display: Roboto · body: Roboto · hero: kept · nav: kept · footer: kept · signature: kept
+ * axes: light/grotesk-sans/chromatic-orange · posture: banner · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H5 E5 S5 R5 V4 · weakest: P, focused on real esports orders and authentic reviews */
+@import url("./tokens.css");
+@import url("./base.css");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    overflow-x: clip;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    min-width: 0;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+/* Scrollbar tokenized */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-paper-2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-rule);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
