@@ -18,12 +18,14 @@ interface SepayWebhookBody {
 
 export async function handleSepayPaymentWebhook(req: Request, res: Response): Promise<void> {
   try {
-    const webhookKey = process.env.SEPAY_WEBHOOK_KEY;
+    const webhookKey = process.env.SEPAY_WEBHOOK_KEY?.trim();
     if (webhookKey) {
-      const authHeader = req.headers.authorization || (req.headers['x-api-key'] as string);
-      const expectedHeader = `Apikey ${webhookKey}`;
-      if (authHeader !== expectedHeader && authHeader !== webhookKey) {
-        console.warn('[SePay Webhook] Unauthorized webhook attempt:', authHeader);
+      const authHeader = (req.headers.authorization || (req.headers['x-api-key'] as string) || '').trim();
+      // Support raw key or with "Apikey <key>" / "Bearer <key>" prefix
+      const token = authHeader.replace(/^(Apikey|Bearer)\s+/i, '').trim();
+
+      if (token !== webhookKey && authHeader !== webhookKey) {
+        console.warn('[SePay Webhook] Unauthorized webhook attempt. Received header:', authHeader);
         res.status(401).json({ success: false, message: 'Unauthorized' });
         return;
       }
@@ -32,12 +34,7 @@ export async function handleSepayPaymentWebhook(req: Request, res: Response): Pr
     const payload: SepayWebhookBody = req.body || {};
     console.log('[SePay Webhook] Received payload:', JSON.stringify(payload));
 
-    // Only process incoming money ('in')
-    if (payload.transferType && payload.transferType.toLowerCase() === 'out') {
-      console.log('[SePay Webhook] Ignored outgoing transfer');
-      res.status(200).json({ success: true, message: 'Ignored outgoing transfer' });
-      return;
-    }
+    
 
     const content = payload.content || '';
     const description = payload.description || '';
