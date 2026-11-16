@@ -35,6 +35,11 @@ app.get('/health', (_req, res) => {
 app.use('/api/admin', adminRoutes);
 
 // Public & Client API Routes
+app.post('/hooks/sepay-payment', (req, res) => {
+  // Handle Sepay payment webhook here
+  console.log('Received Sepay payment webhook:', req.body);
+  res.status(200).json({ success: true });
+});
 app.use('/api/auth', authRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/rank-tiers', rankTierRoutes);
