@@ -34,7 +34,12 @@ export async function handleSepayPaymentWebhook(req: Request, res: Response): Pr
     const payload: SepayWebhookBody = req.body || {};
     console.log('[SePay Webhook] Received payload:', JSON.stringify(payload));
 
-    
+    // Only process incoming money ('in')
+    if (payload.transferType && payload.transferType.toLowerCase() === 'out') {
+      console.log('[SePay Webhook] Ignored outgoing transfer');
+      res.status(200).json({ success: true, message: 'Ignored outgoing transfer' });
+      return;
+    }
 
     const content = payload.content || '';
     const description = payload.description || '';
