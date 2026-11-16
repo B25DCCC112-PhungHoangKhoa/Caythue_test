@@ -10,6 +10,7 @@ import orderRoutes from './routes/orderRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import { ErrorMiddleware } from './middlewares/errorMiddleware.js';
+import paymentRoutes from './routes/paymentRoutes.js';
 dotenv.config();
 
 const app: Application = express();
@@ -34,12 +35,13 @@ app.get('/health', (_req, res) => {
 // Admin Routes (all grouped under /api/admin/* and protected by AuthMiddleware)
 app.use('/api/admin', adminRoutes);
 
+// Payment & Webhook Routes
+app.use('/api/payment', paymentRoutes);
+app.use('/api/hooks', paymentRoutes);
+app.use('/hooks', paymentRoutes);
+
 // Public & Client API Routes
-app.post('/hooks/sepay-payment', (req, res) => {
-  // Handle Sepay payment webhook here
-  console.log('Received Sepay payment webhook:', req.body);
-  res.status(200).json({ success: true });
-});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/rank-tiers', rankTierRoutes);

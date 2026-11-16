@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Copy,
@@ -10,6 +10,7 @@ import {
   ArrowRight,
   X,
 } from 'lucide-react';
+import axiosClient from '../../api/axiosClient';
 import type { IBankInfo } from '../../types';
 
 export interface VietQRPaymentCardProps {
@@ -61,11 +62,55 @@ export const VietQRPaymentCard: React.FC<VietQRPaymentCardProps> = ({
   // Countdown timer state: 10 minutes (600 seconds)
   const [timeLeft, setTimeLeft] = useState<number>(600);
   const [isExpired, setIsExpired] = useState<boolean>(false);
+  const [isPaid, setIsPaid] = useState<boolean>(false);
+  const [isChecking, setIsChecking] = useState<boolean>(false);
 
   // Copy states
   const [copiedAccount, setCopiedAccount] = useState<boolean>(false);
   const [copiedMessage, setCopiedMessage] = useState<boolean>(false);
   const [copiedAmount, setCopiedAmount] = useState<boolean>(false);
+
+  const handleFinish = useCallback(() => {
+    if (onComplete) {
+      onComplete();
+    } else if (orderId) {
+      navigate(`/orders/${orderId}`);
+    } else {
+      navigate('/orders');
+    }
+  }, [navigate, onComplete, orderId]);
+
+  // Polling payment status every 3 seconds
+  useEffect(() => {
+    const target = orderId || orderCode;
+    if (!target || isPaid || isExpired) return;
+
+    let isMounted = true;
+    const interval = setInterval(async () => {
+      try {
+        setIsChecking(true);
+        const res = await axiosClient.get(`/orders/${target}/payment-status`);
+        if (res.data?.success && res.data?.paymentStatus === 'paid') {
+          if (isMounted) {
+            setIsPaid(true);
+            clearInterval(interval);
+            setTimeout(() => {
+              handleFinish();
+            }, 1800);
+          }
+        }
+      } catch {
+        // Silently catch polling errors
+      } finally {
+        if (isMounted) setIsChecking(false);
+      }
+    }, 3000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [orderId, orderCode, isPaid, isExpired, handleFinish]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -111,16 +156,6 @@ export const VietQRPaymentCard: React.FC<VietQRPaymentCardProps> = ({
     } else if (type === 'amount') {
       setCopiedAmount(true);
       setTimeout(() => setCopiedAmount(false), 2000);
-    }
-  };
-
-  const handleFinish = () => {
-    if (onComplete) {
-      onComplete();
-    } else if (orderId) {
-      navigate(`/orders/${orderId}`);
-    } else {
-      navigate('/orders');
     }
   };
 
@@ -304,9 +339,20 @@ export const VietQRPaymentCard: React.FC<VietQRPaymentCardProps> = ({
 
       {/* Card Footer Actions */}
       <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-          <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span>Tự động kiểm tra giao dịch mỗi 5 giây</span>
+        <div className="flex items-center gap-2 text-xs font-medium">
+          {isPaid ? (
+            <div className="flex items-center gap-2 text-emerald-600 font-bold">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+              <span>Đã thanh toán thành công!</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-slate-500">
+              <RefreshCw
+                className={`w-3.5 h-3.5 text-orange-500 ${isChecking ? 'animate-spin' : ''}`}
+              />
+              <span>Tự động kiểm tra giao dịch mỗi 3 giây</span>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -328,6 +374,32 @@ export const VietQRPaymentCard: React.FC<VietQRPaymentCardProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Success Modal Overlay */}
+      {isPaid && (
+        <div className="absolute inset-0 z-40 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fadeIn">
+          <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4 shadow-sm animate-bounce">
+            <Check className="w-8 h-8 stroke-[3]" />
+          </div>
+          <h3 className="text-2xl font-black text-slate-900 mb-2">
+            Thanh Toán Thành Công!
+          </h3>
+          <p className="text-sm text-slate-600 max-w-sm mb-5 leading-relaxed">
+            Hệ thống đã nhận được tiền chuyển khoản qua SePay. Đơn hàng của bạn đã được chuyển sang trạng thái <strong>Đang Cày</strong>!
+          </p>
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-200 mb-6">
+            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            <span>Đang tự động chuyển hướng đến chi tiết đơn hàng...</span>
+          </div>
+          <button
+            onClick={handleFinish}
+            className="px-6 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs shadow-md flex items-center gap-1.5 transition-transform active:scale-95"
+          >
+            <span>Đến chi tiết đơn hàng ngay</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

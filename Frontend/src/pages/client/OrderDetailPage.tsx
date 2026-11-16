@@ -600,6 +600,10 @@ export const OrderDetailPage: React.FC = () => {
           bankInfo={order.bankInfo}
           totalPrice={order.totalPrice}
           orderId={order._id}
+          onComplete={() => {
+            setQrModalOpen(false);
+            fetchOrderDetail();
+          }}
         />
       )}
     </div>

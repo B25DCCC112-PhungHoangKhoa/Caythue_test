@@ -12,6 +12,7 @@ export interface VietQRModalProps {
   totalPrice: number;
   bankInfo?: IBankInfo;
   orderId?: string;
+  onComplete?: () => void;
 }
 
 export const VietQRModal: React.FC<VietQRModalProps> = ({
@@ -24,6 +25,7 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
   totalPrice,
   bankInfo,
   orderId,
+  onComplete,
 }) => {
   if (!isOpen) return null;
 
@@ -39,6 +41,7 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
           bankInfo={bankInfo}
           orderId={orderId}
           onClose={onClose}
+          onComplete={onComplete}
           isModal={true}
         />
       </div>

@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import { Order } from '../models/Order.js';
 import { Service } from '../models/Service.js';
 import { PriceCalculator } from '../utils/calculatePrice.js';
@@ -293,6 +294,43 @@ export class OrderController {
           },
           qrUrl
         }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async getPaymentStatus(
+    req: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { id } = req.params;
+      let order = null;
+      if (mongoose.Types.ObjectId.isValid(id)) {
+        order = await Order.findById(id).select('paymentStatus orderStatus orderCode totalPrice');
+      }
+      if (!order) {
+        order = await Order.findOne({ orderCode: id.toUpperCase() }).select(
+          'paymentStatus orderStatus orderCode totalPrice'
+        );
+      }
+
+      if (!order) {
+        res.status(404).json({
+          success: false,
+          message: 'Không tìm thấy đơn hàng'
+        });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        paymentStatus: order.paymentStatus,
+        orderStatus: order.orderStatus,
+        orderCode: order.orderCode,
+        totalPrice: order.totalPrice
       });
     } catch (error) {
       next(error);
