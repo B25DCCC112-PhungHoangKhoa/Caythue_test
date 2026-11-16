@@ -20,13 +20,12 @@ export async function handleSepayPaymentWebhook(req: Request, res: Response): Pr
   try {
     const webhookKey = process.env.SEPAY_WEBHOOK_KEY?.trim();
     if (webhookKey) {
-      const authHeader = (req.headers.authorization || (req.headers['x-api-key'] as string) || '').trim();
-      // Support raw key or with "Apikey <key>" / "Bearer <key>" prefix
-      const token = authHeader.replace(/^(Apikey|Bearer)\s+/i, '').trim();
+      const authHeader = (req.headers.authorization || '').trim();
+      const match = authHeader.match(/^Bearer\s+(.+)$/i);
 
-      if (token !== webhookKey && authHeader !== webhookKey) {
+      if (!match || match[1].trim() !== webhookKey) {
         console.warn('[SePay Webhook] Unauthorized webhook attempt. Received header:', authHeader);
-        res.status(401).json({ success: false, message: 'Unauthorized' });
+        res.status(401).json({ success: false, message: 'Unauthorized: Invalid Bearer token' });
         return;
       }
     }
