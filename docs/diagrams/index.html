@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CayGame - Trung Tâm Sơ Đồ Kiến Trúc Tương Tác (Tiếng Việt)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/70 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-orange-600/30">
+          CG
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            Hệ Thống Sơ Đồ Kiến Trúc CayGame
+            <span class="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Tiếng Việt</span>
+          </h1>
+          <p class="text-xs text-slate-400">Kiến trúc hệ thống, Luồng dữ liệu DFD, Quy trình nghiệp vụ & ERD Chân quạ</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center gap-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700/60 text-xs font-semibold overflow-x-auto w-full sm:w-auto">
+        <button onclick="switchTab('arch')" id="tab-arch" class="tab-btn px-3.5 py-2 rounded-lg bg-orange-600 text-white transition-all shadow-sm">
+          1. Kiến Trúc Hệ Thống
+        </button>
+        <button onclick="switchTab('dataflow')" id="tab-dataflow" class="tab-btn px-3.5 py-2 rounded-lg text-slate-400 hover:text-white transition-all">
+          2. Luồng Dữ Liệu (DFD)
+        </button>
+        <button onclick="switchTab('workflow')" id="tab-workflow" class="tab-btn px-3.5 py-2 rounded-lg text-slate-400 hover:text-white transition-all">
+          3. Quy Trình Nghiệp Vụ
+        </button>
+        <button onclick="switchTab('erd')" id="tab-erd" class="tab-btn px-3.5 py-2 rounded-lg text-slate-400 hover:text-white transition-all">
+          4. ERD (Chân Quạ)
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Viewer Content -->
+  <main class="flex-1 flex flex-col max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-4">
+    <!-- Active Diagram Info Banner -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-sm">
+      <div>
+        <h2 id="current-title" class="text-base font-bold text-white">Kiến Trúc Hệ Thống CayGame</h2>
+        <p id="current-desc" class="text-xs text-slate-400">Kiến trúc đa tầng: React 19 Client (Vercel Edge) ➔ Express 5 API (Render Node 24) ➔ MongoDB Atlas, Cloudinary, SePay Webhook & VietQR</p>
+      </div>
+      <a id="fullscreen-link" href="caygame-architecture.html" target="_blank" class="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors">
+        <span>Mở toàn màn hình</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+      </a>
+    </div>
+
+    <!-- Iframe Container -->
+    <div class="flex-1 min-h-[780px] w-full bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl relative">
+      <iframe id="diagram-frame" src="caygame-architecture.html" class="w-full h-full border-0 absolute inset-0" title="Trình Xem Sơ Đồ Tương Tác"></iframe>
+    </div>
+  </main>
+
+  <script>
+    const diagrams = {
+      arch: {
+        title: "Kiến Trúc Hệ Thống CayGame",
+        desc: "Kiến trúc đa tầng: React 19 Client (Vercel Edge) ➔ Express 5 API (Render Node 24) ➔ MongoDB Atlas, Cloudinary, SePay Webhook & VietQR",
+        url: "caygame-architecture.html"
+      },
+      dataflow: {
+        title: "Sơ Đồ Luồng Dữ Liệu CayGame (DFD)",
+        desc: "Luồng dữ liệu qua 5 giai đoạn: Nguồn Dữ Liệu ➔ Tiếp Nhận & Điều Hướng ➔ Xử Lý & Đối Soát ➔ Lưu Trữ Bền Vững ➔ Đồng Bộ & Phản Hồi",
+        url: "caygame-dataflow.html"
+      },
+      workflow: {
+        title: "Quy Trình Nghiệp Vụ & Vòng Đời Đơn Hàng CayGame",
+        desc: "Quy trình khép kín: Chọn rank ➔ Bảng tính giá ➔ Khởi tạo VietQR ➔ Quét mã ngân hàng ➔ SePay đối soát ➔ Polling 3s ➔ Booster cày game & upload ảnh thắng",
+        url: "caygame-workflow.html"
+      },
+      erd: {
+        title: "Sơ Đồ Quan Hệ Thực Thể (Crow's Foot Notation)",
+        desc: "Mô hình quan hệ cơ sở dữ liệu chuẩn Chân Quạ: user, game, service, rank_tier, order (chứa accountInfo, customOptions), review",
+        url: "caygame-erd.html"
+      }
+    };
+
+    function switchTab(type) {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-orange-600', 'text-white', 'shadow-sm');
+        btn.classList.add('text-slate-400');
+      });
+
+      const activeBtn = document.getElementById('tab-' + type);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-400');
+        activeBtn.classList.add('bg-orange-600', 'text-white', 'shadow-sm');
+      }
+
+      const d = diagrams[type];
+      if (d) {
+        document.getElementById('current-title').textContent = d.title;
+        document.getElementById('current-desc').textContent = d.desc;
+        document.getElementById('fullscreen-link').href = d.url;
+        document.getElementById('diagram-frame').src = d.url;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "diagram_type": "erd",
+  "meta": {
+    "title": "Sơ Đồ Quan Hệ Thực Thể CayGame (Crow's Foot)",
+    "subtitle": "Mô hình dữ liệu cơ sở dữ liệu MongoDB: Người dùng, Danh mục, Đơn hàng & Đánh giá",
+    "output": "caygame-erd.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "core",
+        "label": "Giao Dịch Đơn Hàng",
+        "focus": ["user", "order", "service"],
+        "note": "Quy trình cốt lõi: Khách hàng đặt đơn cho các dịch vụ cày rank game."
+      },
+      {
+        "id": "catalog_pricing",
+        "label": "Danh Mục & Bảng Giá",
+        "focus": ["game", "service", "rank_tier"],
+        "note": "Danh mục game, dịch vụ và chi phí từng bậc rank."
+      },
+      {
+        "id": "feedback",
+        "label": "Đánh Giá & Nghiệm Thu",
+        "focus": ["order", "review", "user"],
+        "note": "Khách hàng để lại đánh giá số sao và bình luận sau khi hoàn thành đơn."
+      }
+    ]
+  },
+  "layout": {
+    "mode": "grid",
+    "gapY": 38,
+    "gapX": 72
+  },
+  "entities": [
+    {
+      "id": "user",
+      "label": "user",
+      "tag": "tài khoản",
+      "row": 0,
+      "col": 0,
+      "attributes": [
+        { "name": "_id", "type": "ObjectId", "key": "pk" },
+        { "name": "email", "type": "varchar(120)", "key": "uk" },
+        { "name": "name", "type": "varchar(80)" },
+        { "name": "password", "type": "varchar(60)" },
+        { "name": "role", "type": "varchar(16)" },
+        { "name": "phoneNumber", "type": "varchar(20)" },
+        { "name": "createdAt", "type": "timestamptz" }
+      ]
+    },
+    {
+      "id": "order",
+      "label": "order",
+      "tag": "đơn hàng",
+      "row": 0,
+      "col": 1,
+      "width": 260,
+      "attributes": [
+        { "name": "_id", "type": "ObjectId", "key": "pk" },
+        { "name": "orderCode", "type": "varchar(12)", "key": "uk" },
+        { "name": "transferCode", "type": "varchar(12)" },
+        { "name": "userId", "type": "ObjectId", "key": "fk", "references": "user._id" },
+        { "name": "serviceId", "type": "ObjectId", "key": "fk", "references": "service._id" },
+        { "name": "startRankTierId", "type": "ObjectId", "key": "fk", "references": "rank_tier._id" },
+        { "name": "targetRankTierId", "type": "ObjectId", "key": "fk", "references": "rank_tier._id" },
+        { "name": "basePrice", "type": "numeric(12,2)" },
+        { "name": "totalPrice", "type": "numeric(12,2)" },
+        { "name": "paymentStatus", "type": "varchar(16)" },
+        { "name": "orderStatus", "type": "varchar(16)" },
+        { "name": "proofImage", "type": "text" },
+        { "name": "accountInfo", "type": "json" },
+        { "name": "createdAt", "type": "timestamptz" }
+      ]
+    },
+    {
+      "id": "review",
+      "label": "review",
+      "tag": "đánh giá",
+      "row": 0,
+      "col": 2,
+      "attributes": [
+        { "name": "_id", "type": "ObjectId", "key": "pk" },
+        { "name": "orderId", "type": "ObjectId", "key": "fk", "references": "order._id" },
+        { "name": "userId", "type": "ObjectId", "key": "fk", "references": "user._id" },
+        { "name": "serviceId", "type": "ObjectId", "key": "fk", "references": "service._id" },
+        { "name": "rating", "type": "int" },
+        { "name": "comment", "type": "text" },
+        { "name": "createdAt", "type": "timestamptz" }
+      ]
+    },
+    {
+      "id": "game",
+      "label": "game",
+      "tag": "danh mục",
+      "row": 1,
+      "col": 0,
+      "attributes": [
+        { "name": "_id", "type": "ObjectId", "key": "pk" },
+        { "name": "slug", "type": "varchar(60)", "key": "uk" },
+        { "name": "name", "type": "varchar(80)", "key": "uk" },
+        { "name": "thumbnail", "type": "text" },
+        { "name": "isActive", "type": "boolean" },
+        { "name": "createdAt", "type": "timestamptz" }
+      ]
+    },
+    {
+      "id": "service",
+      "label": "service",
+      "tag": "dịch vụ",
+      "row": 1,
+      "col": 1,
+      "width": 260,
+      "attributes": [
+        { "name": "_id", "type": "ObjectId", "key": "pk" },
+        { "name": "gameId", "type": "ObjectId", "key": "fk", "references": "game._id" },
+        { "name": "name", "type": "varchar(100)" },
+        { "name": "thumbnail", "type": "text" },
+        { "name": "customOptions", "type": "json" },
+        { "name": "isActive", "type": "boolean" },
+        { "name": "createdAt", "type": "timestamptz" }
+      ]
+    },
+    {
+      "id": "rank_tier",
+      "label": "rank_tier",
+      "tag": "bậc rank",
+      "row": 1,
+      "col": 2,
+      "attributes": [
+        { "name": "_id", "type": "ObjectId", "key": "pk" },
+        { "name": "gameId", "type": "ObjectId", "key": "fk", "references": "game._id" },
+        { "name": "name", "type": "varchar(60)" },
+        { "name": "index", "type": "int" },
+        { "name": "costToNext", "type": "numeric(12,2)" },
+        { "name": "createdAt", "type": "timestamptz" }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "order_user",
+      "from": "order",
+      "to": "user",
+      "label": "đặt bởi",
+      "fromCardinality": "many",
+      "toCardinality": "one"
+    },
+    {
+      "id": "service_game",
+      "from": "service",
+      "to": "game",
+      "label": "thuộc về",
+      "fromCardinality": "many",
+      "toCardinality": "one"
+    },
+    {
+      "id": "ranktier_game",
+      "from": "rank_tier",
+      "to": "game",
+      "label": "cấu hình cho",
+      "fromCardinality": "many",
+      "toCardinality": "one"
+    },
+    {
+      "id": "order_service",
+      "from": "order",
+      "to": "service",
+      "label": "chọn dịch vụ",
+      "fromCardinality": "many",
+      "toCardinality": "one"
+    },
+    {
+      "id": "order_rank_start",
+      "from": "order",
+      "to": "rank_tier",
+      "label": "rank bắt đầu",
+      "fromCardinality": "many",
+      "toCardinality": "one"
+    },
+    {
+      "id": "review_order",
+      "from": "review",
+      "to": "order",
+      "label": "đánh giá đơn",
+      "fromCardinality": "many",
+      "fromOptional": true,
+      "toCardinality": "one",
+      "identifying": false
+    },
+    {
+      "id": "review_user",
+      "from": "review",
+      "to": "user",
+      "label": "viết bởi",
+      "fromCardinality": "many",
+      "toCardinality": "one"
+    },
+    {
+      "id": "review_service",
+      "from": "review",
+      "to": "service",
+      "label": "đánh giá dịch vụ",
+      "fromCardinality": "many",
+      "toCardinality": "one"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Khóa Chính & Khóa Ngoại",
+      "items": [
+        "order là trung tâm dữ liệu: liên kết với user, service, và cả 2 bậc rank bắt đầu và đích",
+        "email trong user và slug trong game có ràng buộc duy nhất (uk)",
+        "orderCode là mã công khai duy nhất dùng để đối soát thanh toán ngân hàng qua SePay"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Bản Số Crow's Foot (Chân Quạ)",
+      "items": [
+        "Một người dùng đặt không hoặc nhiều đơn hàng (1:N)",
+        "Một tựa game có một hoặc nhiều bậc rank bắt buộc (1:N bắt buộc)",
+        "Liên kết đánh giá (review) với đơn hàng là tùy chọn (nét đứt) cho tới khi đơn hoàn tất"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Cấu Trúc Nhúng (Embedded Documents)",
+      "items": [
+        "accountInfo lưu trữ tài khoản, mật khẩu nick game dưới dạng sub-document trong order",
+        "customOptions (cày siêu tốc +35%, chọn tướng tủ +25%) được lưu trực tiếp vào từng đơn hàng"
+      ]
+    }
+  ]
+}

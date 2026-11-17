@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Kiến Trúc Hệ Thống CayGame",
+    "subtitle": "Nền tảng cày thuê rank Esports tích hợp cổng SePay & VietQR tự động",
+    "output": "caygame-architecture.html",
+    "quality_profile": "showcase",
+    "animation": "trace"
+  },
+  "components": [
+    {
+      "id": "users",
+      "type": "external",
+      "label": "Người Dùng & Khách",
+      "sublabel": "Trình duyệt Web / Di động",
+      "pos": [40, 240],
+      "size": [130, 60]
+    },
+    {
+      "id": "vercel_edge",
+      "type": "cloud",
+      "label": "Vercel Edge CDN",
+      "sublabel": "Phân phối Frontend SPA",
+      "pos": [230, 240],
+      "size": [130, 60],
+      "tag": "Hosting Frontend"
+    },
+    {
+      "id": "react_app",
+      "type": "frontend",
+      "label": "Giao Diện React 19",
+      "sublabel": "Vite + Tailwind + Zustand",
+      "pos": [420, 240],
+      "size": [140, 64],
+      "tag": "Axios Client"
+    },
+    {
+      "id": "render_vm",
+      "type": "cloud",
+      "label": "Render Web Service",
+      "sublabel": "Môi trường Node 24 LTS",
+      "pos": [630, 240],
+      "size": [130, 60],
+      "tag": "Hosting Backend"
+    },
+    {
+      "id": "express_api",
+      "type": "backend",
+      "label": "Máy Chủ Express 5",
+      "sublabel": "RESTful API Controller",
+      "pos": [830, 240],
+      "size": [140, 64],
+      "tag": "Cổng 5000"
+    },
+    {
+      "id": "auth_jwt",
+      "type": "security",
+      "label": "Xác Thực JWT",
+      "sublabel": "Middleware phân quyền RBAC",
+      "pos": [830, 100],
+      "size": [140, 60],
+      "tag": "bcrypt + Token"
+    },
+    {
+      "id": "mongo_atlas",
+      "type": "database",
+      "label": "MongoDB Atlas",
+      "sublabel": "Cơ sở dữ liệu Cloud Cluster",
+      "pos": [1050, 150],
+      "size": [140, 64],
+      "tag": "Mongoose ODM"
+    },
+    {
+      "id": "cloudinary",
+      "type": "cloud",
+      "label": "Cloudinary CDN",
+      "sublabel": "Lưu trữ ảnh đa phương tiện",
+      "pos": [1050, 330],
+      "size": [140, 64],
+      "tag": "Ảnh Thắng Trận"
+    },
+    {
+      "id": "vietqr_svc",
+      "type": "external",
+      "label": "Tạo Mã VietQR",
+      "sublabel": "API img.vietqr.io",
+      "pos": [420, 420],
+      "size": [140, 60],
+      "tag": "Napas 247"
+    },
+    {
+      "id": "sepay_hub",
+      "type": "external",
+      "label": "Cổng SePay Webhook",
+      "sublabel": "Biến động số dư ngân hàng",
+      "pos": [830, 420],
+      "size": [140, 64],
+      "tag": "MB/BIDV/VCB"
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Tầng Giao Diện Client (Vercel & Trình duyệt)",
+      "wraps": ["users", "vercel_edge", "react_app"]
+    },
+    {
+      "kind": "region",
+      "label": "Tầng Ứng Dụng Máy Chủ (Render Backend)",
+      "wraps": ["render_vm", "express_api", "auth_jwt"]
+    },
+    {
+      "kind": "region",
+      "label": "Tầng Lưu Trữ & Cơ Sở Dữ Liệu Cloud",
+      "wraps": ["mongo_atlas", "cloudinary"]
+    },
+    {
+      "kind": "security-group",
+      "label": "Hạ Tầng Thanh Toán & Webhook Tự Động",
+      "wraps": ["vietqr_svc", "sepay_hub"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "users-to-vercel",
+      "from": "users",
+      "to": "vercel_edge",
+      "label": "Truy cập HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "vercel-to-react",
+      "from": "vercel_edge",
+      "to": "react_app"
+    },
+    {
+      "id": "react-to-render",
+      "from": "react_app",
+      "to": "render_vm",
+      "label": "Gọi API REST",
+      "variant": "emphasis"
+    },
+    {
+      "id": "render-to-express",
+      "from": "render_vm",
+      "to": "express_api"
+    },
+    {
+      "id": "express-auth",
+      "from": "express_api",
+      "to": "auth_jwt",
+      "label": "Kiểm tra Token",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "express-mongo",
+      "from": "express_api",
+      "to": "mongo_atlas",
+      "label": "Truy vấn Mongoose",
+      "variant": "emphasis"
+    },
+    {
+      "id": "express-cloudinary",
+      "from": "express_api",
+      "to": "cloudinary",
+      "label": "Upload ảnh bằng chứng",
+      "variant": "dashed"
+    },
+    {
+      "id": "react-vietqr",
+      "from": "react_app",
+      "to": "vietqr_svc",
+      "label": "Lấy mã QR động",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "sepay-express",
+      "from": "sepay_hub",
+      "to": "express_api",
+      "label": "POST Webhook giao dịch",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "react-poll",
+      "from": "react_app",
+      "to": "express_api",
+      "label": "Polling 3s trạng thái",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "bottom",
+      "via": [[490, 360], [900, 360]]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Tầng Giao Diện Client",
+      "items": [
+        "Ứng dụng React 19 SPA phân phối toàn cầu qua hạ tầng Vercel Edge",
+        "Zustand quản lý trạng thái đăng nhập và luồng cấu hình cày rank thời gian thực",
+        "Axios client tự động đính kèm mã JWT Bearer trong header mỗi request"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Lõi Máy Chủ Ứng Dụng",
+      "items": [
+        "Express 5 chạy trên Render Web Service xử lý các endpoint nghiệp vụ",
+        "Cơ chế phân quyền RBAC và mã hóa bcrypt bảo vệ an toàn nick game của khách",
+        "Endpoint kiểm tra thanh toán siêu tốc, bảo mật tuyệt đối không lộ mật khẩu"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Tự Động Hóa Thanh Toán",
+      "items": [
+        "Sinh mã VietQR Napas 247 kèm cú pháp chuyển khoản NAP <transferCode>",
+        "SePay webhook tự động nhận diện và đối soát số tiền chuyển khoản",
+        "Tự động chuyển trạng thái đơn và đưa người dùng về trang chi tiết sau khi nhận tiền"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Lưu Trữ & Phương Tiện",
+      "items": [
+        "MongoDB Atlas lưu trữ danh mục game, bậc rank, đơn hàng và đánh giá",
+        "Cloudinary CDN lưu trữ ảnh chụp màn hình chiến thắng của Booster"
+      ]
+    }
+  ]
+}

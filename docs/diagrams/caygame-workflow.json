@@ -1,0 +1,195 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Quy Trình Nghiệp Vụ & Xử Lý Đơn CayGame",
+    "subtitle": "Toàn bộ chu trình: Chọn rank, VietQR, SePay Webhook, Polling & Booster hoàn thành",
+    "output": "caygame-workflow.html",
+    "quality_profile": "showcase",
+    "animation": "trace"
+  },
+  "lanes": [
+    { "id": "customer", "label": "Khách Hàng (Người chơi)" },
+    { "id": "frontend", "label": "Giao Diện React SPA" },
+    { "id": "backend", "label": "Máy Chủ API & SePay" },
+    { "id": "booster", "label": "Booster & Admin" },
+    { "id": "exceptions", "label": "Ngoại Lệ & Hoàn Tiền", "variant": "exception" }
+  ],
+  "phases": [
+    { "id": "intake", "label": "1. Cấu Hình Rank", "fromCol": 0, "toCol": 1 },
+    { "id": "payment", "label": "2. Thanh Toán Tự Động", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "delivery", "label": "3. Cày Rank & Nghiệm Thu", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": [
+    "select_rank",
+    "price_preview",
+    "submit_order",
+    "gen_qr",
+    "scan_pay",
+    "sepay_webhook",
+    "poll_sync",
+    "boost_rank",
+    "upload_proof",
+    "customer_review"
+  ],
+  "nodes": [
+    {
+      "id": "select_rank",
+      "lane": "customer",
+      "col": 0,
+      "type": "frontend",
+      "label": "Chọn Bậc Rank",
+      "sublabel": "Rank đầu & rank đích",
+      "width": 130
+    },
+    {
+      "id": "price_preview",
+      "lane": "frontend",
+      "col": 1,
+      "type": "frontend",
+      "label": "Bảng Tính Giá",
+      "sublabel": "Cộng phụ phí Options",
+      "tag": "Xem trước",
+      "width": 130
+    },
+    {
+      "id": "submit_order",
+      "lane": "customer",
+      "col": 2,
+      "type": "frontend",
+      "label": "Nhập Nick Game",
+      "sublabel": "Tài khoản & mật khẩu",
+      "width": 130
+    },
+    {
+      "id": "gen_qr",
+      "lane": "backend",
+      "col": 2,
+      "type": "backend",
+      "label": "Khởi Tạo VietQR",
+      "sublabel": "Cú pháp NAP memo",
+      "tag": "Chờ thanh toán",
+      "width": 130
+    },
+    {
+      "id": "scan_pay",
+      "lane": "customer",
+      "col": 3,
+      "type": "external",
+      "label": "Quét Mã & Chuyển",
+      "sublabel": "App Ngân hàng Napas",
+      "tag": "Đếm ngược 10p",
+      "width": 130
+    },
+    {
+      "id": "sepay_webhook",
+      "lane": "backend",
+      "col": 3,
+      "type": "backend",
+      "label": "SePay Webhook",
+      "sublabel": "Đối soát tiền tự động",
+      "tag": "Khớp mã NAP",
+      "width": 130
+    },
+    {
+      "id": "underpaid_err",
+      "lane": "exceptions",
+      "col": 3,
+      "type": "security",
+      "label": "Thiếu Tiền Cọc",
+      "sublabel": "Chuyển ít hơn tiền đơn",
+      "tag": "Cần can thiệp",
+      "width": 130
+    },
+    {
+      "id": "poll_sync",
+      "lane": "frontend",
+      "col": 4,
+      "type": "frontend",
+      "label": "Polling Tự Động",
+      "sublabel": "Chuyển trang tức thì",
+      "tag": "Thông báo xanh",
+      "width": 130
+    },
+    {
+      "id": "boost_rank",
+      "lane": "booster",
+      "col": 4,
+      "type": "backend",
+      "label": "Tiến Hành Cày",
+      "sublabel": "Booster đánh lên rank",
+      "tag": "Đang cày",
+      "width": 130
+    },
+    {
+      "id": "upload_proof",
+      "lane": "booster",
+      "col": 5,
+      "type": "cloud",
+      "label": "Upload Bằng Chứng",
+      "sublabel": "Ảnh thắng Cloudinary",
+      "tag": "Hoàn tất",
+      "width": 130
+    },
+    {
+      "id": "customer_review",
+      "lane": "customer",
+      "col": 5,
+      "type": "frontend",
+      "label": "Đánh Giá Sao",
+      "sublabel": "Phản hồi 1 đến 5 sao",
+      "tag": "Nghiệm thu",
+      "width": 130
+    },
+    {
+      "id": "refund_claim",
+      "lane": "exceptions",
+      "col": 5,
+      "type": "security",
+      "label": "Yêu Cầu Hoàn Tiền",
+      "sublabel": "Nhập STK ngân hàng",
+      "tag": "Hủy đơn",
+      "width": 130
+    }
+  ],
+  "edges": [
+    { "id": "e1", "from": "select_rank", "to": "price_preview", "label": "chọn rank" },
+    { "id": "e2", "from": "price_preview", "to": "submit_order", "label": "xác nhận" },
+    { "id": "e3", "from": "submit_order", "to": "gen_qr", "label": "tạo đơn" },
+    { "id": "e4", "from": "gen_qr", "to": "scan_pay", "label": "hiển thị QR" },
+    { "id": "e5", "from": "scan_pay", "to": "sepay_webhook", "label": "chuyển tiền", "variant": "emphasis" },
+    { "id": "e6", "from": "sepay_webhook", "to": "poll_sync", "label": "đã nhận tiền", "variant": "emphasis" },
+    { "id": "e7", "from": "poll_sync", "to": "boost_rank", "label": "giao việc", "variant": "emphasis" },
+    { "id": "e8", "from": "boost_rank", "to": "upload_proof", "label": "chiến thắng", "variant": "emphasis" },
+    { "id": "e9", "from": "upload_proof", "to": "customer_review", "label": "hài lòng" },
+    { "id": "e10", "from": "sepay_webhook", "to": "underpaid_err", "label": "thiếu tiền", "variant": "security", "role": "error" },
+    { "id": "e11", "from": "boost_rank", "to": "refund_claim", "label": "hủy đơn", "variant": "security", "role": "error" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Luồng Nghiệp Vụ Chuẩn",
+      "items": [
+        "Tính toán chi phí cày rank minh bạch, chính xác từng bậc trước khi đặt đơn",
+        "Mã VietQR động chứa sẵn số tiền và cú pháp chuyển khoản NAP <transferCode>",
+        "Cơ chế SePay webhook và polling 3s giúp tự động chuyển hướng khách hàng sau khi thanh toán"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Bảo Vệ & Xử Lý Sự Cố",
+      "items": [
+        "Trường hợp chuyển khoản thiếu tiền được ghi chú riêng để Admin xử lý linh hoạt",
+        "Quy trình hủy đơn thu thập số tài khoản và ngân hàng để Admin hoàn tiền có chứng từ"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Chứng Từ Hoàn Thành",
+      "items": [
+        "Booster bắt buộc phải tải lên ảnh chụp màn hình chiến thắng đạt rank trước khi kết thúc đơn",
+        "Khách hàng kiểm tra bằng chứng minh bạch trước khi gửi đánh giá sao cho dịch vụ"
+      ]
+    }
+  ]
+}

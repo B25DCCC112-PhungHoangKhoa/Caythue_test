@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Sơ Đồ Luồng Dữ Liệu CayGame (DFD)",
+    "subtitle": "Luồng dữ liệu khép kín: Đặt đơn, VietQR, Đối soát SePay & Booster cày rank",
+    "output": "caygame-dataflow.html",
+    "quality_profile": "showcase",
+    "animation": "trace"
+  },
+  "stages": [
+    { "label": "Nguồn Dữ Liệu" },
+    { "label": "Tiếp Nhận & Điều Hướng" },
+    { "label": "Xử Lý & Đối Soát" },
+    { "label": "Lưu Trữ Bền Vững" },
+    { "label": "Đồng Bộ & Phản Hồi" }
+  ],
+  "nodes": [
+    {
+      "id": "client_browser",
+      "type": "frontend",
+      "label": "Trình Duyệt Khách",
+      "sublabel": "Giao diện React SPA",
+      "stage": 0,
+      "row": 0,
+      "tag": "Đặt đơn / Login"
+    },
+    {
+      "id": "bank_system",
+      "type": "external",
+      "label": "Ngân Hàng & SePay",
+      "sublabel": "App Ngân hàng Napas",
+      "stage": 0,
+      "row": 2,
+      "tag": "Chuyển khoản"
+    },
+    {
+      "id": "api_gateway",
+      "type": "cloud",
+      "label": "Bộ Điều Hướng API",
+      "sublabel": "Express Router trên Render",
+      "stage": 1,
+      "row": 1,
+      "tag": "Cổng :5000"
+    },
+    {
+      "id": "auth_engine",
+      "type": "security",
+      "label": "Xác Thực Phân Quyền",
+      "sublabel": "Kiểm tra Token JWT",
+      "stage": 2,
+      "row": 0,
+      "tag": "Bảo mật RBAC"
+    },
+    {
+      "id": "order_engine",
+      "type": "backend",
+      "label": "Động Cơ Đơn Hàng",
+      "sublabel": "Tính giá & Sinh VietQR",
+      "stage": 2,
+      "row": 1,
+      "tag": "Mã CTxxxxxx"
+    },
+    {
+      "id": "webhook_engine",
+      "type": "backend",
+      "label": "Đối Soát SePay",
+      "sublabel": "Khớp cú pháp Regex",
+      "stage": 2,
+      "row": 2,
+      "tag": "NAP d6yc33"
+    },
+    {
+      "id": "mongo_orders",
+      "type": "database",
+      "label": "Cơ Sở Dữ Liệu",
+      "sublabel": "MongoDB Atlas Cluster",
+      "stage": 3,
+      "row": 1,
+      "tag": "Bền vững"
+    },
+    {
+      "id": "cloudinary_store",
+      "type": "cloud",
+      "label": "Kho Ảnh Cloudinary",
+      "sublabel": "CDN hình ảnh bằng chứng",
+      "stage": 3,
+      "row": 2,
+      "tag": "Ảnh thắng trận"
+    },
+    {
+      "id": "booster_ui",
+      "type": "backend",
+      "label": "Quản Trị Booster",
+      "sublabel": "Nhận đơn & cập nhật tiến độ",
+      "stage": 4,
+      "row": 0,
+      "tag": "Quản lý đơn"
+    },
+    {
+      "id": "client_feedback",
+      "type": "frontend",
+      "label": "Đồng Bộ Trạng Thái",
+      "sublabel": "Polling 3s & Auto-Redirect",
+      "stage": 4,
+      "row": 1,
+      "tag": "Thông báo thành công"
+    }
+  ],
+  "flows": [
+    {
+      "id": "client-to-gateway",
+      "from": "client_browser",
+      "to": "api_gateway",
+      "label": "Yêu cầu từ khách",
+      "classification": "Tương tác khách",
+      "variant": "emphasis"
+    },
+    {
+      "id": "bank-to-gateway",
+      "from": "bank_system",
+      "to": "api_gateway",
+      "label": "Webhook giao dịch",
+      "classification": "Dữ liệu thanh toán",
+      "variant": "security"
+    },
+    {
+      "id": "gateway-to-auth",
+      "from": "api_gateway",
+      "to": "auth_engine",
+      "label": "Xác thực JWT",
+      "classification": "Bảo mật",
+      "variant": "security"
+    },
+    {
+      "id": "gateway-to-order",
+      "from": "api_gateway",
+      "to": "order_engine",
+      "label": "Tạo đơn hàng",
+      "classification": "Nghiệp vụ",
+      "variant": "emphasis"
+    },
+    {
+      "id": "gateway-to-webhook",
+      "from": "api_gateway",
+      "to": "webhook_engine",
+      "label": "Khớp giao dịch",
+      "classification": "Thanh toán",
+      "variant": "emphasis"
+    },
+    {
+      "id": "order-to-db",
+      "from": "order_engine",
+      "to": "mongo_orders",
+      "label": "Lưu đơn mới",
+      "classification": "Ghi dữ liệu",
+      "variant": "emphasis"
+    },
+    {
+      "id": "webhook-to-db",
+      "from": "webhook_engine",
+      "to": "mongo_orders",
+      "label": "Cập nhật paid",
+      "classification": "Cập nhật",
+      "variant": "emphasis"
+    },
+    {
+      "id": "db-to-booster",
+      "from": "mongo_orders",
+      "to": "booster_ui",
+      "label": "Giao đơn cày",
+      "classification": "Điều phối",
+      "variant": "default"
+    },
+    {
+      "id": "booster-to-cloudinary",
+      "from": "booster_ui",
+      "to": "cloudinary_store",
+      "label": "Upload ảnh thắng",
+      "classification": "Lưu chứng từ",
+      "variant": "dashed"
+    },
+    {
+      "id": "db-to-feedback",
+      "from": "mongo_orders",
+      "to": "client_feedback",
+      "label": "Đồng bộ trạng thái",
+      "classification": "Thời gian thực",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Tiếp Nhận & Xử Lý",
+      "items": [
+        "Yêu cầu từ khách hàng và webhook ngân hàng đi qua một cổng định tuyến API thống nhất",
+        "Middleware JWT tách bạch kiểm tra xác thực khỏi luồng nghiệp vụ tạo đơn",
+        "Bộ điều khiển webhook sử dụng biểu thức chính quy (Regex) để trích xuất mã chuyển khoản"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Lưu Trữ Bền Vững",
+      "items": [
+        "Đơn hàng được lưu trữ tại MongoDB Atlas với chu trình trạng thái rõ ràng (pending, paid, in_progress, completed)",
+        "Mật khẩu nick game được bảo mật nghiêm ngặt, cách ly hoàn toàn khỏi API kiểm tra thanh toán",
+        "Ảnh chụp màn hình chiến thắng được truyền thẳng lên Cloudinary CDN để khách đối chiếu"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Đồng Bộ Thời Gian Thực",
+      "items": [
+        "Giao diện phía Client tự động kiểm tra trạng thái mỗi 3 giây qua endpoint /payment-status",
+        "Chuyển trạng thái tức thì sang 'Đã thanh toán' mà không cần người dùng tải lại trang thủ công",
+        "Tự động chuyển hướng khách hàng sang trang chi tiết đơn hàng ngay khi tiền về tài khoản"
+      ]
+    }
+  ]
+}
